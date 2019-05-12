@@ -94,7 +94,7 @@ void CBeam::ElementStiffness(double* Matrix)
 	 k[0] = material_->E * material_->a * material_->b / L;
      k[1] = 12 * material_->E * Iz / (L * L * L);
      k[2] = 12 * material_->E * Iy / (L * L * L);
-	 k[3] = material_->E * (Iz+Iy) / ((2 + 2 * material_->Nu) * L);
+	 k[3] = material_->E * (Iz+Iy) / ((2 + 2 * material_->nu) * L);
      k[4] = 4 * material_->E * Iy / L;
      k[5] = 4 * material_->E * Iz / L;
 	 k[6] = 6 * material_->E * Iy / (L * L);
@@ -392,8 +392,8 @@ void CBeam::ElementPostInfo(double* beamstress, double* Displacement, double* pr
     double tau_xz;
 
     sigma1 = material_->E * (D[1][0] - D[0][0]) / L;
-    tau_xy = material_->E * b * dtheta[0][0] / (4 + 4 * material_->Nu);
-    tau_xz = material_->E * a * dtheta[0][0] / (4 + 4 * material_->Nu);
+    tau_xy = material_->E * b * dtheta[0][0] / (4 + 4 * material_->nu);
+    tau_xz = material_->E * a * dtheta[0][0] / (4 + 4 * material_->nu);
     for (unsigned int i = 0; i < 2; i++){
         sigma2[i][0] = material_->E * a * dtheta[i][2] / 2;
         sigma2[i][1] = material_->E * b * dtheta[i][1] / 2;

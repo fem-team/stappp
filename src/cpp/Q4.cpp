@@ -181,8 +181,8 @@ void CQ4::ElementStiffness(double* Matrix)
 	double CM[3];
 	//Constitute Matrix Element
 	CQ4Material* material_ = dynamic_cast<CQ4Material*>(ElementMaterial_);
-	CM[0] = material_->E / (1- material_->Nu * material_->Nu);   //1
-	CM[1] = CM[0] * material_->Nu; // Nu
+	CM[0] = material_->E / (1- material_->nu * material_->nu);   //1
+	CM[1] = CM[0] * material_->nu; // Nu
 	CM[2] = (CM[0] - CM[1])/2;  // 1-Nu /2
 
 	GaussPointLocalAssembly(CM,Matrix,-GP,-GP);
@@ -202,8 +202,8 @@ void CQ4::ElementStress(double* stress, double* Displacement)
 	GP = 0.57735;
 
 	CQ4Material* material_ = dynamic_cast<CQ4Material*>(ElementMaterial_);
-	CM[0] = material_->E / (1- material_->Nu * material_->Nu);
-	CM[1] = CM[0] * material_->Nu;
+	CM[0] = material_->E / (1- material_->nu * material_->nu);
+	CM[1] = CM[0] * material_->nu;
 	CM[2] = (CM[0] - CM[1])/2;
 	
 

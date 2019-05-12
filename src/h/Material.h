@@ -63,7 +63,7 @@ class CQ4Material : public CMaterial
 {
 public:
 
-	double Nu;	//!< Sectional area of a bar element
+	double nu;	//!< Sectional area of a bar element
 
 
 
@@ -82,7 +82,7 @@ public:
 
 	double a;
 	double b;
-	double Nu;
+	double nu;
 	double x1;
 	double y1;
 	double x2;
