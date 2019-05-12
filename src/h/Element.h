@@ -89,7 +89,7 @@ public:
 	virtual unsigned int SizeOfStiffnessMatrix() = 0;     
 
 //  新加
-	virtual double Gravity() {};
+	virtual double Gravity() = 0;
 //  新加
 	inline unsigned int GetNEN() { return NEN_; }
 

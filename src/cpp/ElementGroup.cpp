@@ -74,6 +74,10 @@ void CElementGroup::CalculateMemberSize()
 			ElementSize_ = sizeof(CIEM);
 			MaterialSize_ = sizeof(CIEMMaterial);
 			break;
+		case ElementTypes::Q5:
+			ElementSize_ = sizeof(CQ5);
+			MaterialSize_ = sizeof(CQ5Material);
+			break;
 
 		case ElementTypes::Q4:
 			ElementSize_ = sizeof(CQ4);
@@ -110,6 +114,9 @@ void CElementGroup::AllocateElements(std::size_t size)
 		case ElementTypes::IEM:
 			ElementList_ = new CIEM[size];
 			break;
+		case ElementTypes::Q5:
+			ElementList_ = new CQ5[size];
+			break;
         default:
             std::cerr << "Type " << ElementType_ << " not available. See CElementGroup::AllocateElement." << std::endl;
             exit(5);
@@ -135,6 +142,9 @@ void CElementGroup::AllocateMaterials(std::size_t size)
 			break;
 		case ElementTypes::IEM:
 			MaterialList_ = new CIEMMaterial[size];
+			break;
+		case ElementTypes::Q5:
+			MaterialList_ = new CQ4Material[size];
 			break;
         default:
             std::cerr << "Type " << ElementType_ << " not available. See CElementGroup::AllocateMaterial." << std::endl;

@@ -882,3 +882,8 @@ void CPlate::ElementStress(double* stress, double* Displacement, double* positio
 	position[11] = zmid;
 }
 
+double CPlate::Gravity()
+{
+	return 0;
+}
+

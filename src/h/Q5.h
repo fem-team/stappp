@@ -1,9 +1,6 @@
-#pragma once
 /*****************************************************************************/
 /*  STAP++ : A C++ FEM code sharing the same input data file with STAP90     */
-/*                                                                           */
-/*     Jinliang Kang promited 参考文献 《有限元分析中的无限域单元及其应用》  */
-/*                                                                           */
+/*     Jinliang Kang promoted                                                */
 /*     School of Aerospace Engineering, Tsinghua University                  */
 /*                                                                           */
 /*     Release 1.11, November 22, 2017                                       */
@@ -17,21 +14,21 @@
 
 using namespace std;
 
-//! Bar element class
-class CIEM : public CElement
+//! infinite element class
+class CQ5 : public CElement
 {
 public:
 
 	//!	Constructor
-	CIEM();
+	CQ5();
 
 	//!	Desconstructor
-	~CIEM();
+	~CQ5();
 
 	//!	Read element data from stream Input
 	virtual bool Read(ifstream& Input, unsigned int Ele, CMaterial* MaterialSets, CNode* NodeList);
 
-	//!	Write element data to stream
+	//!	Write element data to stream 
 	virtual void Write(COutputter& output, unsigned int Ele);
 
 	//! Generate location matrix: the global equation number that corresponding to each DOF of the element
@@ -42,9 +39,9 @@ public:
 	virtual void ElementStiffness(double* Matrix);
 
 	//!	Calculate element stress
-	virtual void ElementStress(double* stress, double* Displacement);
+	virtual void ElementStress(double* Q4stress, double* Displacement);
 
-	//! Calculate coordinate of gauss point (after the change of the coordinates)
+	//! Calculate coordinate of gauss point
 	virtual void ElementGauss(double* Coordinate);
 
 	//!	Return the size of the element stiffness matrix (stored as an array column by column)

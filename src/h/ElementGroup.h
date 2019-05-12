@@ -16,6 +16,7 @@
 
 #include "Beam.h"
 #include "Q4.h"
+#include "Q5.h"
 #include "Bar.h"
 #include "Plate.h"
 #include "IEM.h"
@@ -37,7 +38,8 @@ enum ElementTypes
     Beam,   // Beam element
     Plate,  // Plate element
     Shell,   // Shell elment
-	IEM     // Infinite 4Q element 
+	IEM,     // Infinite 4Q element 
+	Q5       // 4Q + one mid point
 };
 
 //! Element group class

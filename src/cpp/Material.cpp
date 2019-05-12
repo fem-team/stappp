@@ -91,6 +91,24 @@ bool CQ4Material::Read(ifstream& Input, unsigned int mset)
 	return true;
 }
 
+bool CQ5Material::Read(ifstream& Input, unsigned int mset)
+{
+	Input >> nset;	// Number of property set
+
+	if (nset != mset + 1)
+	{
+		cerr << "*** Error *** Material sets must be inputted in order !" << endl
+			<< "    Expected set : " << mset + 1 << endl
+			<< "    Provided set : " << nset << endl;
+
+		return false;
+	}
+
+	Input >> E >> nu;	// Young's modulus and section area
+
+	return true;
+}
+
 bool CBeamMaterial::Read(ifstream& Input, unsigned int mset)
 {
 	Input >> nset;	// Number of property set
@@ -121,6 +139,11 @@ void CBarMaterial::Write(COutputter& output, unsigned int mset)
 void CQ4Material::Write(COutputter& output, unsigned int mset)
 {
 	output << setw(5) << mset+1 << setw(16) << E << setw(16) << Nu << endl;
+}
+
+void CQ5Material::Write(COutputter& output, unsigned int mset)
+{
+	output << setw(5) << mset + 1 << setw(16) << E << setw(16) << nu << endl;
 }
 
 

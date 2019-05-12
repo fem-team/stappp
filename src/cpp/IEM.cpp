@@ -210,3 +210,8 @@ void CIEM::ElementStiffness(double* Matrix)
 //	Calculate element stress
 void CIEM::ElementStress(double* Q4stress, double* Displacement) {}
 void CIEM::ElementGauss(double* Coordinate) {}
+
+double CIEM::Gravity()
+{
+	return 0;
+}

@@ -166,6 +166,9 @@ void COutputter::OutputElementInfo()
 			case ElementTypes::Q4:
 				PrintQ4ElementData(EleGrp);
 				break;
+			case ElementTypes::Q5:
+				PrintQ4ElementData(EleGrp);
+				break;
 			case ElementTypes::Beam:
 				PrintBeamElementData(EleGrp);
 				break;
@@ -242,6 +245,46 @@ void COutputter::PrintQ4ElementData(unsigned int EleGrp)
 		  << " E L E M E N T   I N F O R M A T I O N" << endl;
 	*this << " ELEMENT     NODE     NODE     NODE     NODE       MATERIAL" << endl
 		  << " NUMBER-N      I       II      III       IV       SET NUMBER" << endl;
+
+	unsigned int NUME = ElementGroup.GetNUME();
+
+	//	Loop over for all elements in group EleGrp
+	for (unsigned int Ele = 0; Ele < NUME; Ele++)
+		ElementGroup[Ele].Write(*this, Ele);
+
+	*this << endl;
+}
+
+//	Output 5Q element data
+void COutputter::PrintQ5ElementData(unsigned int EleGrp)
+{
+	CDomain* FEMData = CDomain::Instance();
+
+	CElementGroup& ElementGroup = FEMData->GetEleGrpList()[EleGrp];
+	unsigned int NUMMAT = ElementGroup.GetNUMMAT();
+
+	*this << " M A T E R I A L   D E F I N I T I O N" << endl
+		<< endl;
+	*this << " NUMBER OF DIFFERENT SETS OF MATERIAL" << endl;
+	*this << " AND CROSS-SECTIONAL  CONSTANTS  . . . .( NPAR(3) ) . . =" << setw(5) << NUMMAT
+		<< endl
+		<< endl;
+
+	*this << "  SET       YOUNG'S        POISSON " << endl
+		<< " NUMBER     MODULUS         RATIO" << endl
+		<< "               E              nu " << endl;
+
+	*this << setiosflags(ios::scientific) << setprecision(5);
+
+	//	Loop over for all property sets
+	for (unsigned int mset = 0; mset < NUMMAT; mset++)
+		ElementGroup.GetMaterial(mset).Write(*this, mset);
+
+	*this << endl
+		<< endl
+		<< " E L E M E N T   I N F O R M A T I O N" << endl;
+	*this << " ELEMENT     NODE     NODE     NODE     NODE       MATERIAL" << endl
+		<< " NUMBER-N      I       II      III       IV       SET NUMBER" << endl;
 
 	unsigned int NUME = ElementGroup.GetNUME();
 
@@ -480,6 +523,9 @@ void COutputter::OutputElementStress()
 					}
 				}
 				*this << endl;
+				break;
+
+			case ElementTypes::Q5:
 				break;
 
 
