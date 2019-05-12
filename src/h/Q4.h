@@ -44,6 +44,8 @@ public:
 //
 	virtual void ElementCoordinates (double * coord);
 
+	virtual void ElementPostInfo(double stress[12], double* Displacement, double Positions[12],
+                                   double GaussDisplacements[12], double weights[4]);
 
 private:
 

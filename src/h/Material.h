@@ -24,6 +24,7 @@ public:
 	
 	double E;  //!< Young's modulus
 
+	double density;
 
 public:
 
@@ -64,7 +65,7 @@ class C3TMaterial : public CMaterial
 {
 public:
 
-	double poisson;	//!Poisson ratio of a 4Q element
+	double Nu;	//!Poisson ratio of a 4Q element
 
 	double thick; // the thickness of element
 
@@ -124,7 +125,7 @@ class C8HMaterial : public CMaterial
 {
 public:
 
-	double nv;	//!< Sectional area of a 8H element
+	double Nu;	//!< Sectional area of a 8H element
 
 //!	Read material data from stream Input
 	virtual bool Read(ifstream& Input, unsigned int mset);

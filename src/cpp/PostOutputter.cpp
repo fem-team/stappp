@@ -215,7 +215,181 @@ void CPostOutputter::OutputElementStress()
             }
             *this << endl;
 			 
-				 break;
+			break;
+
+		case ElementTypes::T3: // 3T element
+
+            *this << "ZONE T = \"Bridge\", N = " << NUME * 3 << ",E = " << NUME
+                  << " ,F = FEPOINT , ET = TRIANGLE, C = RED" << endl;
+
+            double stress3T[3];
+            double PrePosition3T[9];
+            double PostPosition3T[9];
+            double cmptStress3T[4];
+
+            for (unsigned int Ele = 0; Ele < NUME; Ele++)
+            {
+                CElement& Element = EleGrp[Ele];
+                Element.ElementPostInfo(stress3T, Displacement, PrePosition3T, PostPosition3T);
+                C3TMaterial material =
+                    *dynamic_cast<C3TMaterial*>(Element.GetElementMaterial());
+
+                for (unsigned nodeIndex = 0; nodeIndex < 3; nodeIndex++)
+                {
+                    for (unsigned dof = 0; dof < 3; dof++)
+                        *this << setw(Datalength) << PostPosition3T[nodeIndex * 3 + dof];
+
+                    cmptStress3T[0] = stress3T[6 * nodeIndex] + stress3T[6 * nodeIndex + 1];
+                    cmptStress3T[1] = stress3T[6 * nodeIndex]*stress3T[6 * nodeIndex + 1] - stress3T[6 * nodeIndex + 2]*stress3T[6 * nodeIndex + 2];
+					cmptStress3T[2] = sqrt(cmptStress3T[0] * cmptStress3T[0] - cmptStress3T[1]);
+                    cmptStress3T[3] = 0.0;
+                    *this << setw(Datalength) << cmptStress3T[0]
+                          << setw(Datalength) << cmptStress3T[1]
+                          << setw(Datalength) << cmptStress3T[2]
+                          << setw(Datalength) << cmptStress3T[3];
+
+                    *this << setw(Datalength) << stress3T[0] << setw(Datalength)
+                          << stress3T[1] << setw(Datalength) << 0.0
+                          << setw(Datalength) << stress3T[2] << setw(Datalength)
+                          << 0.0 << setw(Datalength) << 0.0 << std::endl;
+                }
+            }
+            for (unsigned int Ele = 0; Ele < NUME; Ele++)
+            {
+                for (unsigned _ = 0; _ < 3; _++)
+                    *this << setw(Datalength) << Ele * 3 + _ + 1;
+                *this << std::endl;
+            }
+            *this << endl;
+
+            break;
+
+        case ElementTypes::H8: // 8H element
+        {
+            *this << "ZONE T= \"Bridge\", N = " << NUME * 8 << " ,E = " << NUME
+                  << " ,F = FEPOINT , ET = BRICK, C = RED" << endl;
+
+
+            double*  stressHex = new double[NUME*48];
+            double*  PrePosition8H = new double[NUME*24];
+            double*  Position8H = new double[NUME*24];
+            double cmptStress8H[4];            
+
+
+			for (unsigned int Ele = 0; Ele < NUME; Ele++)
+            {
+                CElement& Element = EleGrp[Ele];
+                Element.ElementPostInfo( &stressHex[48*Ele], Displacement, &PrePosition8H[24*Ele], &Position8H[24*Ele]);
+            }
+
+           for (unsigned int Ele = 0; Ele < NUME; Ele++)
+            {
+                for (unsigned _ = 0; _ < 8; _++)
+                {
+                    *this << setw(Datalength)
+                          << PrePosition8H[24*Ele+_*3 + 0]+coeff*(Position8H[24*Ele+_ * 3 + 0]-PrePosition8H[24*Ele+_*3 + 0])
+                          << setw(Datalength)
+                          << PrePosition8H[24*Ele+_*3 + 1]+coeff*(Position8H[24*Ele+_ * 3 + 1]-PrePosition8H[24*Ele+_*3 + 1])
+                          << setw(Datalength)
+                          << PrePosition8H[24*Ele+_*3 + 2]+coeff*(Position8H[24*Ele+_ * 3 + 2]-PrePosition8H[24*Ele+_*3 + 2]);
+
+                    cmptStress8H[0] = stressHex[48*Ele+6 * _] + stressHex[48*Ele+6 * _ + 1] + stressHex[48*Ele+6 * _ + 2];
+                    cmptStress8H[1] = stressHex[48*Ele+6 * _]*stressHex[48*Ele+6 * _ + 1] - stressHex[48*Ele+6 * _ + 3]*stressHex[48*Ele+6 * _ + 3]
+                                     + stressHex[48*Ele+6 * _]*stressHex[48*Ele+6 * _ + 2] - stressHex[48*Ele+6 * _ + 5]*stressHex[48*Ele+6 * _ + 5]
+                                     + stressHex[48*Ele+6 * _ + 1]*stressHex[48*Ele+6 * _ + 2] - stressHex[48*Ele+6 * _ + 4]*stressHex[48*Ele+6 * _ + 4];
+                    cmptStress8H[2] = stressHex[48*Ele+6 * _]*stressHex[48*Ele+6 * _ + 1]*stressHex[48*Ele+6 * _ + 2]
+                                     + stressHex[48*Ele+6 * _ + 3]*stressHex[48*Ele+6 * _ + 4]*stressHex[48*Ele+6 * _ + 5]*2
+                                     - stressHex[48*Ele+6 * _ + 1]*stressHex[48*Ele+6 * _ + 5]*stressHex[48*Ele+6 * _ + 5]
+                                     - stressHex[48*Ele+6 * _ + 2]*stressHex[48*Ele+6 * _ + 3]*stressHex[48*Ele+6 * _ + 3]
+                                     - stressHex[48*Ele+6 * _ + 4]*stressHex[48*Ele+6 * _ + 4]*stressHex[48*Ele+6 * _];
+                    cmptStress8H[3] = sqrt(cmptStress8H[0]*cmptStress8H[0] - cmptStress8H[1]);
+			
+                    *this << setw(Datalength) << cmptStress8H[0]
+                          << setw(Datalength) << cmptStress8H[1]
+                          << setw(Datalength) << cmptStress8H[2]
+                          << setw(Datalength) << cmptStress8H[3];
+
+					*this << setw(Datalength) << stressHex[48*Ele+_*6 + 0]
+                          << setw(Datalength) << stressHex[48*Ele+_*6 + 1]
+                          << setw(Datalength) << stressHex[48*Ele+_*6 + 2]
+                          << setw(Datalength) << stressHex[48*Ele+_*6 + 3]
+                          << setw(Datalength) << stressHex[48*Ele+_*6 + 4]
+                          << setw(Datalength) << stressHex[48*Ele+_*6 + 5]
+                          << endl;
+                }
+            }
+
+            for (unsigned int Ele = 0; Ele < NUME; Ele++)
+            {
+                for (unsigned int i = 1; i < 9; i++)
+                {
+                    *this << setw(Datalength) << Ele * 8 + i;
+                }
+                *this << endl;
+            }
+
+			delete stressHex;
+			delete PrePosition8H;
+			delete Position8H;
+		}
+            break;
+
+		case ElementTypes::Plate:
+            *this << "ZONE T = \"Bridge\", N = " << 8 * NUME << " E = " << NUME
+                  << " F = FEPOINT , ET = BRICK, C = RED" << endl;
+
+            double stresses4PE[48];
+            double PrePositions4PE[24];
+            double Positions4PE[24];
+            double cmptStressPlate[4];
+
+            for (unsigned int Ele = 0; Ele < NUME; Ele++)
+            {
+                EleGrp[Ele].ElementPostInfo(stresses4PE, Displacement, PrePositions4PE,
+                                                       Positions4PE);
+                for (unsigned i = 0; i < 4; ++i)
+                { // four gauss points
+					*this << setw(Datalength)
+						<< (1 - coeff) * PrePositions4PE[3 * i] + coeff * Positions4PE[3 * i]
+						<< setw(Datalength)
+						<< (1 - coeff) * PrePositions4PE[3 * i + 1] +
+						coeff * Positions4PE[3 * i + 1]
+						<< setw(Datalength)
+						<< (1 - coeff) * PrePositions4PE[3 * i + 2] +
+						coeff * Positions4PE[3 * i + 2];
+
+					cmptStressPlate[0] = stresses4PE[6 * i] + stresses4PE[6 * i + 1] + stresses4PE[6 * i + 2];
+					cmptStressPlate[1] = stresses4PE[6 * i] * stresses4PE[6 * i + 1] - stresses4PE[6 * i + 3] * stresses4PE[6 * i + 3]
+						+ stresses4PE[6 * i] * stresses4PE[6 * i + 2] - stresses4PE[6 * i + 5] * stresses4PE[6 * i + 5]
+						+ stresses4PE[6 * i + 1] * stresses4PE[6 * i + 2] - stresses4PE[6 * i + 4] * stresses4PE[6 * i + 4];
+                    cmptStressPlate[2] = stresses4PE[6 * i]*stresses4PE[6 * i + 1]*stresses4PE[6 * i + 2]
+                                     + stresses4PE[6 * i + 3]*stresses4PE[6 * i + 4]*stresses4PE[6 * i + 5]*2
+                                     - stresses4PE[6 * i + 1]*stresses4PE[6 * i + 5]*stresses4PE[6 * i + 5]
+                                     - stresses4PE[6 * i + 2]*stresses4PE[6 * i + 3]*stresses4PE[6 * i + 3]
+                                     - stresses4PE[6 * i + 4]*stresses4PE[6 * i + 4]*stresses4PE[6 * i];
+					cmptStressPlate[2] = sqrt(cmptStressPlate[0] * cmptStressPlate[0] - cmptStressPlate[1]);
+					*this << setw(Datalength) << cmptStressPlate[0]
+						<< setw(Datalength) << cmptStressPlate[1]
+						<< setw(Datalength) << cmptStressPlate[2]
+						<< setw(Datalength) << cmptStressPlate[3];
+					*this << setw(Datalength) << stresses4PE[6 * i]
+						<< setw(Datalength) << stresses4PE[6 * i + 1]
+						<< setw(Datalength) << stresses4PE[6 * i + 2]
+						<< setw(Datalength) << stresses4PE[6 * i + 3]
+						<< setw(Datalength) << stresses4PE[6 * i + 4]
+						<< setw(Datalength) << stresses4PE[6 * i + 5] << endl;
+                }
+            }
+            *this << endl;
+            for (unsigned int Ele = 0; Ele < NUME; Ele++)
+            {
+                for (unsigned int i = 0; i < 8; ++i)
+                {
+                    *this << setw(Datalength) << 8 * Ele + i + 1;
+                }
+                *this << std::endl;
+            }
+            break;
 
 		default: // Invalid element type
 				cerr << "*** Error *** Elment type  " << ElementType

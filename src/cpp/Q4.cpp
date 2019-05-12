@@ -287,6 +287,10 @@ void CQ4::ElementCoordinates (double * coord)
 	coord[7]=( nodes_[0]->XYZ[1]*(1-eta)*(1-psi) + nodes_[1]->XYZ[1]*(1-eta)*(1+psi) + nodes_[2]->XYZ[1]*(1+eta)*(1+psi) + nodes_[3]->XYZ[1]*(1+eta)*(1-psi) )/4;
 }
 
+void CQ4::ElementPostInfo(double stress[12], double* Displacement, double Positions[12],
+                                   double GaussDisplacements[12], double weights[4])
+{};
+
 	double CQ4::Gravity()
 	{return 0;}
 

@@ -54,7 +54,7 @@ bool C3TMaterial::Read(ifstream& Input, unsigned int mset)
 		return false;
 	}
 
-	Input >> E >> poisson >> density >> thick;	// Young's modulus,Poisson ratio and element type
+	Input >> E >> Nu >> density >> thick;	// Young's modulus,Poisson ratio and element type
 
 	return true;
 }
@@ -62,7 +62,7 @@ bool C3TMaterial::Read(ifstream& Input, unsigned int mset)
 //	Write material data to Stream
 void C3TMaterial::Write(COutputter& output, unsigned int mset)
 {
-	output << setw(5) << mset + 1 << setw(16) << E << setw(16) << poisson << setw(16) << density << setw(16) << thick << endl;
+	output << setw(5) << mset + 1 << setw(16) << E << setw(16) << Nu << setw(16) << density << setw(16) << thick << endl;
 }
 bool C8HMaterial::Read(ifstream& Input, unsigned int mset)
 {
@@ -77,14 +77,14 @@ bool C8HMaterial::Read(ifstream& Input, unsigned int mset)
 		return false;
 	}
 
-	Input >> E >> nv >>rho;	// Young's modulus and section area
+	Input >> E >> Nu >>density;	// Young's modulus and section area
 
 	return true;
 }
 
 void C8HMaterial::Write(COutputter& output, unsigned int mset)
 {
-	output << setw(5) << mset+1 << setw(16) << E << setw(16) << posi_ratio << setw(16) << rho<< endl;
+	output << setw(5) << mset+1 << setw(16) << E << setw(16) << Nu << setw(16) << density<< endl;
 }
 
 bool CQ4Material::Read(ifstream& Input, unsigned int mset)

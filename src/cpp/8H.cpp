@@ -18,20 +18,20 @@ using namespace std;
 //	Constructor
 C8H::C8H()
 {
-	NEN = 8;
-	nodes = new CNode*[NEN];
+	NEN_ = 8;
+	nodes_ = new CNode*[NEN_];
     
-    ND = 24;
-    LocationMatrix = new unsigned int[ND];
+    ND_ = 24;
+    LocationMatrix_ = new unsigned int[ND_];
 
-	ElementMaterial = nullptr;
+	ElementMaterial_ = nullptr;
 }
 
 //	Desconstructor
 C8H::~C8H()
 {
-	delete [] nodes;
-    delete [] LocationMatrix;
+	delete [] nodes_;
+    delete [] LocationMatrix_;
 }
 //	Read element data from stream Input
 bool C8H::Read(ifstream& Input, unsigned int Ele, CMaterial* MaterialSets, CNode* NodeList)
@@ -48,29 +48,29 @@ bool C8H::Read(ifstream& Input, unsigned int Ele, CMaterial* MaterialSets, CNode
 	unsigned int MSet;
 	unsigned int N1, N2, N3 ,N4 ,N5 ,N6 ,N7 ,N8;
 	Input >> N1 >> N2 >> N3 >> N4 >> N5 >> N6 >> N7 >> N8 >> MSet;
-    ElementMaterial = dynamic_cast<C8HMaterial*>(MaterialSets) + MSet - 1;
-	nodes[0] = &NodeList[N1 - 1];
-	nodes[1] = &NodeList[N2 - 1];
-	nodes[2] = &NodeList[N3 - 1];
-	nodes[3] = &NodeList[N4 - 1];
-	nodes[4] = &NodeList[N5 - 1];
-	nodes[5] = &NodeList[N6 - 1];
-	nodes[6] = &NodeList[N7 - 1];
-	nodes[7] = &NodeList[N8 - 1];
+    ElementMaterial_ = dynamic_cast<C8HMaterial*>(MaterialSets) + MSet - 1;
+	nodes_[0] = &NodeList[N1 - 1];
+	nodes_[1] = &NodeList[N2 - 1];
+	nodes_[2] = &NodeList[N3 - 1];
+	nodes_[3] = &NodeList[N4 - 1];
+	nodes_[4] = &NodeList[N5 - 1];
+	nodes_[5] = &NodeList[N6 - 1];
+	nodes_[6] = &NodeList[N7 - 1];
+	nodes_[7] = &NodeList[N8 - 1];
 	return true;
 }
 //	Write element data to stream
 void C8H::Write(COutputter& output, unsigned int Ele)
 {
-  output << setw(5) << Ele+1 << setw(11) << nodes[0]->NodeNumber 
-		 << setw(9) << nodes[1]->NodeNumber 
-		 << setw(9) << nodes[2]->NodeNumber 
-		 << setw(9) << nodes[3]->NodeNumber
-		 << setw(9) << nodes[4]->NodeNumber
-		 << setw(9) << nodes[5]->NodeNumber
-		 << setw(9) << nodes[6]->NodeNumber
-		 << setw(9) << nodes[7]->NodeNumber
-		 << setw(12) << ElementMaterial->nset << endl;
+  output << setw(5) << Ele+1 << setw(11) << nodes_[0]->NodeNumber 
+		 << setw(9) << nodes_[1]->NodeNumber 
+		 << setw(9) << nodes_[2]->NodeNumber 
+		 << setw(9) << nodes_[3]->NodeNumber
+		 << setw(9) << nodes_[4]->NodeNumber
+		 << setw(9) << nodes_[5]->NodeNumber
+		 << setw(9) << nodes_[6]->NodeNumber
+		 << setw(9) << nodes_[7]->NodeNumber
+		 << setw(12) << ElementMaterial_->nset << endl;
 }
 
 //  Generate location matrix: the global equation number that corresponding to each DOF of the element
@@ -78,9 +78,9 @@ void C8H::Write(COutputter& output, unsigned int Ele)
 void C8H::GenerateLocationMatrix()
 {
     unsigned int i = 0;
-    for (unsigned int N = 0; N < NEN; N++)
+    for (unsigned int N = 0; N < NEN_; N++)
         for (unsigned int D = 0; D < 3; D++)
-            LocationMatrix[i++] = nodes[N]->bcode[D];
+            LocationMatrix_[i++] = nodes_[N]->bcode[D];
 }
 
 //	Return the size of the element stiffness matrix (stored as an array column by column)
@@ -94,9 +94,9 @@ void C8H::ElementStiffness(double* Matrix)
 {
 	clear(Matrix, SizeOfStiffnessMatrix());
 
-	C8HMaterial* material = dynamic_cast<C8HMaterial*>(ElementMaterial);
+	C8HMaterial* material = dynamic_cast<C8HMaterial*>(ElementMaterial_);
 	double E = material->E;
-	double nv = material->nv;
+	double nv = material->Nu;
 	double mu = E/(1+nv);
 	double lambda = nv*E/((1+nv)*(1-2*nv));
 	double shape[2];
@@ -126,15 +126,15 @@ void C8H::ElementStiffness(double* Matrix)
 				GN[11] = 0.125*(1 - xi)*(1 + eta);
 
 				double J[9];
-				J[0] = GN[0]*(nodes[1]->XYZ[0] - nodes[0]->XYZ[0]) + GN[1]*(nodes[2]->XYZ[0] - nodes[3]->XYZ[0]) + GN[2]*(nodes[5]->XYZ[0] - nodes[4]->XYZ[0]) + GN[3]*(nodes[6]->XYZ[0] - nodes[7]->XYZ[0]);
-				J[1] = GN[0]*(nodes[1]->XYZ[1] - nodes[0]->XYZ[1]) + GN[1]*(nodes[2]->XYZ[1] - nodes[3]->XYZ[1]) + GN[2]*(nodes[5]->XYZ[1] - nodes[4]->XYZ[1]) + GN[3]*(nodes[6]->XYZ[1] - nodes[7]->XYZ[1]);
-				J[2] = GN[0]*(nodes[1]->XYZ[2] - nodes[0]->XYZ[2]) + GN[1]*(nodes[2]->XYZ[2] - nodes[3]->XYZ[2]) + GN[2]*(nodes[5]->XYZ[2] - nodes[4]->XYZ[2]) + GN[3]*(nodes[6]->XYZ[2] - nodes[7]->XYZ[2]);
-				J[3] = GN[4]*(nodes[3]->XYZ[0] - nodes[0]->XYZ[0]) + GN[5]*(nodes[2]->XYZ[0] - nodes[1]->XYZ[0]) + GN[6]*(nodes[7]->XYZ[0] - nodes[4]->XYZ[0]) + GN[7]*(nodes[6]->XYZ[0] - nodes[5]->XYZ[0]);
-				J[4] = GN[4]*(nodes[3]->XYZ[1] - nodes[0]->XYZ[1]) + GN[5]*(nodes[2]->XYZ[1] - nodes[1]->XYZ[1]) + GN[6]*(nodes[7]->XYZ[1] - nodes[4]->XYZ[1]) + GN[7]*(nodes[6]->XYZ[1] - nodes[5]->XYZ[1]);
-				J[5] = GN[4]*(nodes[2]->XYZ[1] - nodes[0]->XYZ[2]) + GN[5]*(nodes[2]->XYZ[2] - nodes[1]->XYZ[2]) + GN[6]*(nodes[7]->XYZ[2] - nodes[4]->XYZ[2]) + GN[7]*(nodes[6]->XYZ[2] - nodes[5]->XYZ[2]);
-				J[6] = GN[8]*(nodes[2]->XYZ[0] - nodes[0]->XYZ[0]) + GN[9]*(nodes[5]->XYZ[0] - nodes[1]->XYZ[0]) + GN[10]*(nodes[6]->XYZ[0] - nodes[2]->XYZ[0]) + GN[11]*(nodes[7]->XYZ[0] - nodes[3]->XYZ[0]);
-				J[7] = GN[8]*(nodes[4]->XYZ[1] - nodes[0]->XYZ[1]) + GN[9]*(nodes[5]->XYZ[1] - nodes[1]->XYZ[1]) + GN[10]*(nodes[6]->XYZ[1] - nodes[2]->XYZ[1]) + GN[11]*(nodes[7]->XYZ[1] - nodes[3]->XYZ[1]);
-				J[8] = GN[8]*(nodes[4]->XYZ[2] - nodes[0]->XYZ[2]) + GN[9]*(nodes[5]->XYZ[2] - nodes[1]->XYZ[2]) + GN[10]*(nodes[6]->XYZ[2] - nodes[2]->XYZ[2]) + GN[11]*(nodes[7]->XYZ[2] - nodes[3]->XYZ[2]);
+				J[0] = GN[0]*(nodes_[1]->XYZ[0] - nodes_[0]->XYZ[0]) + GN[1]*(nodes_[2]->XYZ[0] - nodes_[3]->XYZ[0]) + GN[2]*(nodes_[5]->XYZ[0] - nodes_[4]->XYZ[0]) + GN[3]*(nodes_[6]->XYZ[0] - nodes_[7]->XYZ[0]);
+				J[1] = GN[0]*(nodes_[1]->XYZ[1] - nodes_[0]->XYZ[1]) + GN[1]*(nodes_[2]->XYZ[1] - nodes_[3]->XYZ[1]) + GN[2]*(nodes_[5]->XYZ[1] - nodes_[4]->XYZ[1]) + GN[3]*(nodes_[6]->XYZ[1] - nodes_[7]->XYZ[1]);
+				J[2] = GN[0]*(nodes_[1]->XYZ[2] - nodes_[0]->XYZ[2]) + GN[1]*(nodes_[2]->XYZ[2] - nodes_[3]->XYZ[2]) + GN[2]*(nodes_[5]->XYZ[2] - nodes_[4]->XYZ[2]) + GN[3]*(nodes_[6]->XYZ[2] - nodes_[7]->XYZ[2]);
+				J[3] = GN[4]*(nodes_[3]->XYZ[0] - nodes_[0]->XYZ[0]) + GN[5]*(nodes_[2]->XYZ[0] - nodes_[1]->XYZ[0]) + GN[6]*(nodes_[7]->XYZ[0] - nodes_[4]->XYZ[0]) + GN[7]*(nodes_[6]->XYZ[0] - nodes_[5]->XYZ[0]);
+				J[4] = GN[4]*(nodes_[3]->XYZ[1] - nodes_[0]->XYZ[1]) + GN[5]*(nodes_[2]->XYZ[1] - nodes_[1]->XYZ[1]) + GN[6]*(nodes_[7]->XYZ[1] - nodes_[4]->XYZ[1]) + GN[7]*(nodes_[6]->XYZ[1] - nodes_[5]->XYZ[1]);
+				J[5] = GN[4]*(nodes_[2]->XYZ[1] - nodes_[0]->XYZ[2]) + GN[5]*(nodes_[2]->XYZ[2] - nodes_[1]->XYZ[2]) + GN[6]*(nodes_[7]->XYZ[2] - nodes_[4]->XYZ[2]) + GN[7]*(nodes_[6]->XYZ[2] - nodes_[5]->XYZ[2]);
+				J[6] = GN[8]*(nodes_[2]->XYZ[0] - nodes_[0]->XYZ[0]) + GN[9]*(nodes_[5]->XYZ[0] - nodes_[1]->XYZ[0]) + GN[10]*(nodes_[6]->XYZ[0] - nodes_[2]->XYZ[0]) + GN[11]*(nodes_[7]->XYZ[0] - nodes_[3]->XYZ[0]);
+				J[7] = GN[8]*(nodes_[4]->XYZ[1] - nodes_[0]->XYZ[1]) + GN[9]*(nodes_[5]->XYZ[1] - nodes_[1]->XYZ[1]) + GN[10]*(nodes_[6]->XYZ[1] - nodes_[2]->XYZ[1]) + GN[11]*(nodes_[7]->XYZ[1] - nodes_[3]->XYZ[1]);
+				J[8] = GN[8]*(nodes_[4]->XYZ[2] - nodes_[0]->XYZ[2]) + GN[9]*(nodes_[5]->XYZ[2] - nodes_[1]->XYZ[2]) + GN[10]*(nodes_[6]->XYZ[2] - nodes_[2]->XYZ[2]) + GN[11]*(nodes_[7]->XYZ[2] - nodes_[3]->XYZ[2]);
 				double DetJ1 = J[0]*J[4]*J[8] - J[0]*J[5]*J[7] - J[1]*J[3]*J[8] + J[1]*J[5]*J[6] + J[2]*J[3]*J[7] - J[2]*J[4]*J[6];
 				double DetJ = abs(DetJ1);
 
@@ -462,18 +462,18 @@ void C8H::ElementGravity(double* bodyforce, double Gravity)
 //	Calculate element stress 
 void C8H::ElementStress(double* stress4, double* Displacement)
 {	
-	C8HMaterial* material = dynamic_cast<C8HMaterial*>(ElementMaterial);
+	C8HMaterial* material = dynamic_cast<C8HMaterial*>(ElementMaterial_);
 	double E = material->E;
-	double nv = material->nv;
+	double nv = material->Nu;
 	double mu = E/(1+nv);
 	double lambda = nv*E/((1+nv)*(1-2*nv));
 
 	double disp[24];
 	for (unsigned int i = 0; i < 24; i++)
 	{
-		if (LocationMatrix[i])
+		if (LocationMatrix_[i])
 		{
-			disp[i] = Displacement[LocationMatrix[i] - 1];
+			disp[i] = Displacement[LocationMatrix_[i] - 1];
 		}
 		else
 		{
@@ -506,13 +506,13 @@ void C8H::ElementStress(double* stress4, double* Displacement)
 				GN[11] = 0.125*(1 - xi)*(1 + eta);
 
 				double J[9];
-				J[0] = GN[0]*(nodes[1]->XYZ[0] - nodes[0]->XYZ[0]) + GN[1]*(nodes[2]->XYZ[0] - nodes[3]->XYZ[0]) + GN[2]*(nodes[5]->XYZ[0] - nodes[4]->XYZ[0]) + GN[3]*(nodes[6]->XYZ[0] - nodes[7]->XYZ[0]);
-				J[1] = GN[0]*(nodes[1]->XYZ[1] - nodes[0]->XYZ[1]) + GN[1]*(nodes[2]->XYZ[1] - nodes[3]->XYZ[1]) + GN[2]*(nodes[5]->XYZ[1] - nodes[4]->XYZ[1]) + GN[3]*(nodes[6]->XYZ[1] - nodes[7]->XYZ[1]);
-				J[2] = GN[0]*(nodes[1]->XYZ[2] - nodes[0]->XYZ[2]) + GN[1]*(nodes[2]->XYZ[2] - nodes[3]->XYZ[2]) + GN[2]*(nodes[5]->XYZ[2] - nodes[4]->XYZ[2]) + GN[3]*(nodes[6]->XYZ[2] - nodes[7]->XYZ[2]);
-				J[5] = GN[4]*(nodes[3]->XYZ[2] - nodes[0]->XYZ[2]) + GN[5]*(nodes[2]->XYZ[2] - nodes[1]->XYZ[2]) + GN[6]*(nodes[7]->XYZ[2] - nodes[4]->XYZ[2]) + GN[7]*(nodes[6]->XYZ[2] - nodes[5]->XYZ[2]);
-				J[6] = GN[8]*(nodes[4]->XYZ[0] - nodes[0]->XYZ[0]) + GN[9]*(nodes[5]->XYZ[0] - nodes[1]->XYZ[0]) + GN[10]*(nodes[6]->XYZ[0] - nodes[2]->XYZ[0]) + GN[11]*(nodes[7]->XYZ[0] - nodes[3]->XYZ[0]);
-				J[7] = GN[8]*(nodes[4]->XYZ[1] - nodes[0]->XYZ[1]) + GN[9]*(nodes[5]->XYZ[1] - nodes[1]->XYZ[1]) + GN[10]*(nodes[6]->XYZ[1] - nodes[2]->XYZ[1]) + GN[11]*(nodes[7]->XYZ[1] - nodes[3]->XYZ[1]);
-				J[8] = GN[8]*(nodes[4]->XYZ[2] - nodes[0]->XYZ[2]) + GN[9]*(nodes[5]->XYZ[2] - nodes[1]->XYZ[2]) + GN[10]*(nodes[6]->XYZ[2] - nodes[2]->XYZ[2]) + GN[11]*(nodes[7]->XYZ[2] - nodes[3]->XYZ[2]);
+				J[0] = GN[0]*(nodes_[1]->XYZ[0] - nodes_[0]->XYZ[0]) + GN[1]*(nodes_[2]->XYZ[0] - nodes_[3]->XYZ[0]) + GN[2]*(nodes_[5]->XYZ[0] - nodes_[4]->XYZ[0]) + GN[3]*(nodes_[6]->XYZ[0] - nodes_[7]->XYZ[0]);
+				J[1] = GN[0]*(nodes_[1]->XYZ[1] - nodes_[0]->XYZ[1]) + GN[1]*(nodes_[2]->XYZ[1] - nodes_[3]->XYZ[1]) + GN[2]*(nodes_[5]->XYZ[1] - nodes_[4]->XYZ[1]) + GN[3]*(nodes_[6]->XYZ[1] - nodes_[7]->XYZ[1]);
+				J[2] = GN[0]*(nodes_[1]->XYZ[2] - nodes_[0]->XYZ[2]) + GN[1]*(nodes_[2]->XYZ[2] - nodes_[3]->XYZ[2]) + GN[2]*(nodes_[5]->XYZ[2] - nodes_[4]->XYZ[2]) + GN[3]*(nodes_[6]->XYZ[2] - nodes_[7]->XYZ[2]);
+				J[5] = GN[4]*(nodes_[3]->XYZ[2] - nodes_[0]->XYZ[2]) + GN[5]*(nodes_[2]->XYZ[2] - nodes_[1]->XYZ[2]) + GN[6]*(nodes_[7]->XYZ[2] - nodes_[4]->XYZ[2]) + GN[7]*(nodes_[6]->XYZ[2] - nodes_[5]->XYZ[2]);
+				J[6] = GN[8]*(nodes_[4]->XYZ[0] - nodes_[0]->XYZ[0]) + GN[9]*(nodes_[5]->XYZ[0] - nodes_[1]->XYZ[0]) + GN[10]*(nodes_[6]->XYZ[0] - nodes_[2]->XYZ[0]) + GN[11]*(nodes_[7]->XYZ[0] - nodes_[3]->XYZ[0]);
+				J[7] = GN[8]*(nodes_[4]->XYZ[1] - nodes_[0]->XYZ[1]) + GN[9]*(nodes_[5]->XYZ[1] - nodes_[1]->XYZ[1]) + GN[10]*(nodes_[6]->XYZ[1] - nodes_[2]->XYZ[1]) + GN[11]*(nodes_[7]->XYZ[1] - nodes_[3]->XYZ[1]);
+				J[8] = GN[8]*(nodes_[4]->XYZ[2] - nodes_[0]->XYZ[2]) + GN[9]*(nodes_[5]->XYZ[2] - nodes_[1]->XYZ[2]) + GN[10]*(nodes_[6]->XYZ[2] - nodes_[2]->XYZ[2]) + GN[11]*(nodes_[7]->XYZ[2] - nodes_[3]->XYZ[2]);
 				double DetJ = J[0]*J[4]*J[8] - J[0]*J[5]*J[7] - J[1]*J[3]*J[8] + J[1]*J[5]*J[6] + J[2]*J[3]*J[7] - J[2]*J[4]*J[6];
 
 				double InvJ[9];
@@ -552,3 +552,145 @@ void C8H::ElementStress(double* stress4, double* Displacement)
 		}
 	}
 }
+
+void  C8H::ElementPostInfo(double* stress, double* Displacement , double* PrePositions, double* PostPositions)
+{
+	// get original position: preposition
+	for (unsigned int i =0 ; i<3; i++)
+	{
+		for (unsigned int j=0;j < 8; j++)
+		{
+			PrePositions[i+3*j] = nodes_[j]->XYZ[i];	 			
+		}
+	}
+    double Disp[24];
+	// Get nodal displacements [LM can be used here]
+	for (unsigned int i = 0; i < 24; i++)
+	{
+	
+		if (LocationMatrix_[i])
+			//locatiion matrix start from 1 not 0
+
+		{Disp[i] = Displacement[LocationMatrix_[i]-1];}
+		else
+		{Disp[i] = 0.0;}
+
+		PostPositions[i] = PrePositions[i] + Disp[i];
+
+	}
+
+	// Construct constitutive matrix
+	C8HMaterial* material = static_cast<C8HMaterial*>(ElementMaterial_);	// Pointer to material of the element
+	double v = material->Nu;
+	double k = material->E * (1-v)/(1+v)/(1-2*v);
+	double D[3];
+	D[0] = k;
+	D[1] = k * v / (1 - v);
+	D[2] = k * (1 - 2 * v) / 2.0 / (1 - v);
+
+
+	// Construct Jacobi matrix
+	const double xi8[8] = { 0.577350269189626 , 0.577350269189626 ,-0.577350269189626 ,-0.577350269189626 , 0.577350269189626 ,0.577350269189626 ,-0.577350269189626 ,-0.577350269189626 };
+	const double eta8[8] = { -0.577350269189626 , 0.577350269189626 , 0.577350269189626 ,-0.577350269189626 ,-0.577350269189626 ,0.577350269189626 , 0.577350269189626 ,-0.577350269189626 };
+	const double zeta8[8] = { -0.577350269189626 ,-0.577350269189626 ,-0.577350269189626 ,-0.577350269189626 , 0.577350269189626 ,0.577350269189626 , 0.577350269189626 , 0.577350269189626 };
+
+	double stressXYZ[6][8];	// 8 gauss points, 6 stress components
+	for (unsigned p = 0; p < 8; p++)
+	{
+		double xi   = xi8[p];
+		double eta  = eta8[p];
+		double zeta = zeta8[p];
+
+		double GN[12];
+		GN[0] = (1-eta)*(1-zeta) / 8.0;
+		GN[1] = (1+eta)*(1-zeta) / 8.0;
+		GN[2] = (1-eta)*(1+zeta) / 8.0;
+		GN[3] = (1+eta)*(1+zeta) / 8.0;
+		GN[4] = (1+xi)*(1-zeta) / 8.0;
+		GN[5] = (1-xi)*(1-zeta) / 8.0;
+		GN[6] = (1+xi)*(1+zeta) / 8.0;
+		GN[7] = (1-xi)*(1+zeta) / 8.0;
+		GN[8] = (1+xi)*(1-eta) / 8.0;
+		GN[9] = (1+xi)*(1+eta) / 8.0;
+		GN[10] = (1-xi)*(1+eta) / 8.0;
+		GN[11] = (1-xi)*(1-eta) / 8.0;
+
+		double J[9];
+		J[0] = PrePositions[0] * GN[0] + PrePositions[3] * GN[1] - PrePositions[6] * GN[1] - PrePositions[9] * GN[0] + PrePositions[12] * GN[2] + PrePositions[15] * GN[3] - PrePositions[18] * GN[3] - PrePositions[21] * GN[2];
+		J[1] = -PrePositions[0] * GN[4] + PrePositions[3] * GN[4] + PrePositions[6] * GN[5] - PrePositions[9] * GN[5] - PrePositions[12] * GN[6] + PrePositions[15] * GN[6] + PrePositions[18] * GN[7] - PrePositions[21] * GN[7];
+		J[2] = -PrePositions[0] * GN[8] - PrePositions[3] * GN[9] - PrePositions[6] * GN[10] - PrePositions[9] * GN[11] + PrePositions[12] * GN[8] + PrePositions[15] * GN[9] + PrePositions[18] * GN[10] + PrePositions[21] * GN[11];
+		J[3] = PrePositions[1] * GN[0] + PrePositions[4] * GN[1] - PrePositions[7] * GN[1] - PrePositions[10] * GN[0] + PrePositions[13] * GN[2] + PrePositions[16] * GN[3] - PrePositions[19] * GN[3] - PrePositions[22] * GN[2];
+		J[4] = -PrePositions[1] * GN[4] + PrePositions[4] * GN[4] + PrePositions[7] * GN[5] - PrePositions[10] * GN[5] - PrePositions[13] * GN[6] + PrePositions[16] * GN[6] + PrePositions[19] * GN[7] - PrePositions[22] * GN[7];
+		J[5] = -PrePositions[1] * GN[8] - PrePositions[4] * GN[9] - PrePositions[7] * GN[10] - PrePositions[10] * GN[11] + PrePositions[13] * GN[8] + PrePositions[16] * GN[9] + PrePositions[19] * GN[10] + PrePositions[22] * GN[11];
+		J[6] = PrePositions[2] * GN[0] + PrePositions[5] * GN[1] - PrePositions[8] * GN[1] - PrePositions[11] * GN[0] + PrePositions[14] * GN[2] + PrePositions[17] * GN[3] - PrePositions[20] * GN[3] - PrePositions[23] * GN[2];
+		J[7] = -PrePositions[2] * GN[4] + PrePositions[5] * GN[4] + PrePositions[8] * GN[5] - PrePositions[11] * GN[5] - PrePositions[14] * GN[6] + PrePositions[17] * GN[6] + PrePositions[20] * GN[7] - PrePositions[23] * GN[7];
+		J[8] = -PrePositions[2] * GN[8] - PrePositions[5] * GN[9] - PrePositions[8] * GN[10] - PrePositions[11] * GN[11] + PrePositions[14] * GN[8] + PrePositions[17] * GN[9] + PrePositions[20] * GN[10] + PrePositions[23] * GN[11];
+
+		double detJ = J[0]*J[4]*J[8] - J[0]*J[5]*J[7] - J[1]*J[3]*J[8] + J[1]*J[5]*J[6] + J[2]*J[3]*J[7] - J[2]*J[4]*J[6];
+
+		double invJ[9];
+		invJ[0] = (J[4]*J[8]-J[5]*J[7])/detJ;
+		invJ[1] = -(J[1]*J[8]-J[2]*J[7])/detJ;
+		invJ[2] = (J[1]*J[5]-J[2]*J[4])/detJ;
+		invJ[3] = -(J[3]*J[8]-J[5]*J[6])/detJ;
+		invJ[4] = (J[0]*J[8]-J[2]*J[6])/detJ;
+		invJ[5] = -(J[0]*J[5]-J[2]*J[3])/detJ;
+		invJ[6] = (J[3]*J[7]-J[4]*J[6])/detJ;
+		invJ[7] = -(J[0]*J[7]-J[1]*J[6])/detJ;
+		invJ[8] = (J[0]*J[4]-J[1]*J[3])/detJ;
+
+		double kerB[24];
+		kerB[0] = GN[0] * invJ[0] - GN[4] * invJ[3] - GN[8] * invJ[6];
+		kerB[1] = GN[0] * invJ[1] - GN[4] * invJ[4] - GN[8] * invJ[7];
+		kerB[2] = GN[0] * invJ[2] - GN[4] * invJ[5] - GN[8] * invJ[8];
+		kerB[3] = GN[1] * invJ[0] + GN[4] * invJ[3] - GN[9] * invJ[6];
+		kerB[4] = GN[1] * invJ[1] + GN[4] * invJ[4] - GN[9] * invJ[7];
+		kerB[5] = GN[1] * invJ[2] + GN[4] * invJ[5] - GN[9] * invJ[8];
+		kerB[6] = -GN[1] * invJ[0] + GN[5] * invJ[3] - GN[10] * invJ[6];
+		kerB[7] = -GN[1] * invJ[1] + GN[5] * invJ[4] - GN[10] * invJ[7];
+		kerB[8] = -GN[1] * invJ[2] + GN[5] * invJ[5] - GN[10] * invJ[8];
+		kerB[9] = -GN[0] * invJ[0] - GN[5] * invJ[3] - GN[11] * invJ[6];
+		kerB[10] = -GN[0] * invJ[1] - GN[5] * invJ[4] - GN[11] * invJ[7];
+		kerB[11] = -GN[0] * invJ[2] - GN[5] * invJ[5] - GN[11] * invJ[8];
+		kerB[12] = GN[2] * invJ[0] - GN[6] * invJ[3] + GN[8] * invJ[6];
+		kerB[13] = GN[2] * invJ[1] - GN[6] * invJ[4] + GN[8] * invJ[7];
+		kerB[14] = GN[2] * invJ[2] - GN[6] * invJ[5] + GN[8] * invJ[8];
+		kerB[15] = GN[3] * invJ[0] + GN[6] * invJ[3] + GN[9] * invJ[6];
+		kerB[16] = GN[3] * invJ[1] + GN[6] * invJ[4] + GN[9] * invJ[7];
+		kerB[17] = GN[3] * invJ[2] + GN[6] * invJ[5] + GN[9] * invJ[8];
+		kerB[18] = -GN[3] * invJ[0] + GN[7] * invJ[3] + GN[10] * invJ[6];
+		kerB[19] = -GN[3] * invJ[1] + GN[7] * invJ[4] + GN[10] * invJ[7];
+		kerB[20] = -GN[3] * invJ[2] + GN[7] * invJ[5] + GN[10] * invJ[8];
+		kerB[21] = -GN[2] * invJ[0] - GN[7] * invJ[3] + GN[11] * invJ[6];
+		kerB[22] = -GN[2] * invJ[1] - GN[7] * invJ[4] + GN[11] * invJ[7];
+		kerB[23] = -GN[2] * invJ[2] - GN[7] * invJ[5] + GN[11] * invJ[8];
+
+		stressXYZ[0][p] = D[0] * Disp[0] * kerB[0] + D[1] * Disp[1] * kerB[1] + D[1] * Disp[2] * kerB[2] + D[0] * Disp[3] * kerB[3] + D[1] * Disp[4] * kerB[4] + D[1] * Disp[5] * kerB[5] + D[0] * Disp[6] * kerB[6] + D[1] * Disp[7] * kerB[7] + D[1] * Disp[8] * kerB[8] + D[0] * Disp[9] * kerB[9] + D[1] * Disp[10] * kerB[10] + D[1] * Disp[11] * kerB[11] + D[0] * Disp[12] * kerB[12] + D[1] * Disp[13] * kerB[13] + D[1] * Disp[14] * kerB[14] + D[0] * Disp[15] * kerB[15] + D[1] * Disp[16] * kerB[16] + D[1] * Disp[17] * kerB[17] + D[0] * Disp[18] * kerB[18] + D[1] * Disp[19] * kerB[19] + D[1] * Disp[20] * kerB[20] + D[0] * Disp[21] * kerB[21] + D[1] * Disp[22] * kerB[22] + D[1] * Disp[23] * kerB[23];
+		stressXYZ[1][p] = D[1] * Disp[0] * kerB[0] + D[0] * Disp[1] * kerB[1] + D[1] * Disp[2] * kerB[2] + D[1] * Disp[3] * kerB[3] + D[0] * Disp[4] * kerB[4] + D[1] * Disp[5] * kerB[5] + D[1] * Disp[6] * kerB[6] + D[0] * Disp[7] * kerB[7] + D[1] * Disp[8] * kerB[8] + D[1] * Disp[9] * kerB[9] + D[0] * Disp[10] * kerB[10] + D[1] * Disp[11] * kerB[11] + D[1] * Disp[12] * kerB[12] + D[0] * Disp[13] * kerB[13] + D[1] * Disp[14] * kerB[14] + D[1] * Disp[15] * kerB[15] + D[0] * Disp[16] * kerB[16] + D[1] * Disp[17] * kerB[17] + D[1] * Disp[18] * kerB[18] + D[0] * Disp[19] * kerB[19] + D[1] * Disp[20] * kerB[20] + D[1] * Disp[21] * kerB[21] + D[0] * Disp[22] * kerB[22] + D[1] * Disp[23] * kerB[23];
+		stressXYZ[2][p] = D[1] * Disp[0] * kerB[0] + D[1] * Disp[1] * kerB[1] + D[0] * Disp[2] * kerB[2] + D[1] * Disp[3] * kerB[3] + D[1] * Disp[4] * kerB[4] + D[0] * Disp[5] * kerB[5] + D[1] * Disp[6] * kerB[6] + D[1] * Disp[7] * kerB[7] + D[0] * Disp[8] * kerB[8] + D[1] * Disp[9] * kerB[9] + D[1] * Disp[10] * kerB[10] + D[0] * Disp[11] * kerB[11] + D[1] * Disp[12] * kerB[12] + D[1] * Disp[13] * kerB[13] + D[0] * Disp[14] * kerB[14] + D[1] * Disp[15] * kerB[15] + D[1] * Disp[16] * kerB[16] + D[0] * Disp[17] * kerB[17] + D[1] * Disp[18] * kerB[18] + D[1] * Disp[19] * kerB[19] + D[0] * Disp[20] * kerB[20] + D[1] * Disp[21] * kerB[21] + D[1] * Disp[22] * kerB[22] + D[0] * Disp[23] * kerB[23];
+		stressXYZ[3][p] = D[2] * Disp[0] * kerB[1] + D[2] * Disp[1] * kerB[0] + D[2] * Disp[3] * kerB[4] + D[2] * Disp[4] * kerB[3] + D[2] * Disp[6] * kerB[7] + D[2] * Disp[7] * kerB[6] + D[2] * Disp[9] * kerB[10] + D[2] * Disp[10] * kerB[9] + D[2] * Disp[12] * kerB[13] + D[2] * Disp[13] * kerB[12] + D[2] * Disp[15] * kerB[16] + D[2] * Disp[16] * kerB[15] + D[2] * Disp[18] * kerB[19] + D[2] * Disp[19] * kerB[18] + D[2] * Disp[21] * kerB[22] + D[2] * Disp[22] * kerB[21];
+		stressXYZ[4][p] = D[2] * Disp[1] * kerB[2] + D[2] * Disp[2] * kerB[1] + D[2] * Disp[4] * kerB[5] + D[2] * Disp[5] * kerB[4] + D[2] * Disp[7] * kerB[8] + D[2] * Disp[8] * kerB[7] + D[2] * Disp[10] * kerB[11] + D[2] * Disp[11] * kerB[10] + D[2] * Disp[13] * kerB[14] + D[2] * Disp[14] * kerB[13] + D[2] * Disp[16] * kerB[17] + D[2] * Disp[17] * kerB[16] + D[2] * Disp[19] * kerB[20] + D[2] * Disp[20] * kerB[19] + D[2] * Disp[22] * kerB[23] + D[2] * Disp[23] * kerB[22];
+		stressXYZ[5][p] = D[2] * Disp[0] * kerB[2] + D[2] * Disp[2] * kerB[0] + D[2] * Disp[3] * kerB[5] + D[2] * Disp[5] * kerB[3] + D[2] * Disp[6] * kerB[8] + D[2] * Disp[8] * kerB[6] + D[2] * Disp[9] * kerB[11] + D[2] * Disp[11] * kerB[9] + D[2] * Disp[12] * kerB[14] + D[2] * Disp[14] * kerB[12] + D[2] * Disp[15] * kerB[17] + D[2] * Disp[17] * kerB[15] + D[2] * Disp[18] * kerB[20] + D[2] * Disp[20] * kerB[18] + D[2] * Disp[21] * kerB[23] + D[2] * Disp[23] * kerB[21];
+	}
+
+	// stress recovery for stress on nodes
+	double interpo[4] = {2.549038105676658, -0.683012701892219, 0.183012701892219, -0.049038105676658};
+	double recovery[8];
+	for (unsigned i = 0; i < 6; i++)
+	{
+		recovery[0] = interpo[0]*stressXYZ[i][0] + interpo[1]*stressXYZ[i][1] + interpo[1]*stressXYZ[i][3] + interpo[2]*stressXYZ[i][2] + interpo[1]*stressXYZ[i][4] + interpo[2]*stressXYZ[i][5] + interpo[2]*stressXYZ[i][7] + interpo[3]*stressXYZ[i][6];
+		recovery[1] = interpo[0]*stressXYZ[i][1] + interpo[1]*stressXYZ[i][0] + interpo[1]*stressXYZ[i][2] + interpo[2]*stressXYZ[i][3] + interpo[1]*stressXYZ[i][5] + interpo[2]*stressXYZ[i][4] + interpo[2]*stressXYZ[i][6] + interpo[3]*stressXYZ[i][7];
+		recovery[2] = interpo[0]*stressXYZ[i][2] + interpo[1]*stressXYZ[i][1] + interpo[2]*stressXYZ[i][0] + interpo[1]*stressXYZ[i][3] + interpo[1]*stressXYZ[i][6] + interpo[2]*stressXYZ[i][5] + interpo[3]*stressXYZ[i][4] + interpo[2]*stressXYZ[i][7];
+		recovery[3] = interpo[1]*stressXYZ[i][0] + interpo[0]*stressXYZ[i][3] + interpo[1]*stressXYZ[i][2] + interpo[2]*stressXYZ[i][1] + interpo[2]*stressXYZ[i][4] + interpo[1]*stressXYZ[i][7] + interpo[2]*stressXYZ[i][6] + interpo[3]*stressXYZ[i][5];
+		recovery[4] = interpo[1]*stressXYZ[i][0] + interpo[2]*stressXYZ[i][1] + interpo[0]*stressXYZ[i][4] + interpo[2]*stressXYZ[i][3] + interpo[3]*stressXYZ[i][2] + interpo[1]*stressXYZ[i][5] + interpo[1]*stressXYZ[i][7] + interpo[2]*stressXYZ[i][6];
+		recovery[5] = interpo[1]*stressXYZ[i][1] + interpo[2]*stressXYZ[i][0] + interpo[2]*stressXYZ[i][2] + interpo[0]*stressXYZ[i][5] + interpo[1]*stressXYZ[i][4] + interpo[3]*stressXYZ[i][3] + interpo[1]*stressXYZ[i][6] + interpo[2]*stressXYZ[i][7];
+		recovery[6] = interpo[1]*stressXYZ[i][2] + interpo[2]*stressXYZ[i][1] + interpo[3]*stressXYZ[i][0] + interpo[2]*stressXYZ[i][3] + interpo[0]*stressXYZ[i][6] + interpo[1]*stressXYZ[i][5] + interpo[2]*stressXYZ[i][4] + interpo[1]*stressXYZ[i][7];
+		recovery[7] = interpo[2]*stressXYZ[i][0] + interpo[1]*stressXYZ[i][3] + interpo[2]*stressXYZ[i][2] + interpo[3]*stressXYZ[i][1] + interpo[1]*stressXYZ[i][4] + interpo[0]*stressXYZ[i][7] + interpo[1]*stressXYZ[i][6] + interpo[2]*stressXYZ[i][5];
+		for (unsigned j = 0; j < 8; j++)
+		{
+			stress[6 * j + i] = recovery[j];
+		}
+	}
+
+}
+

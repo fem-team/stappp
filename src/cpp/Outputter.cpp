@@ -172,6 +172,9 @@ void COutputter::OutputElementInfo()
 			case ElementTypes::Beam:
 				PrintBeamElementData(EleGrp);
 				break;
+			case ElementTypes::H8:
+				Print8HElementData(EleGrp);
+				break;
 		}
 	}
 }
@@ -368,7 +371,7 @@ void COutputter::Print8HElementData(unsigned int EleGrp)
 
 	//	Loop over for all elements in group EleGrp
 	for (unsigned int Ele = 0; Ele < NUME; Ele++)
-		ElementGroup.GetElement(Ele).Write(*this, Ele);
+		ElementGroup[Ele].Write(*this, Ele);
 
 	*this << endl;
 }
@@ -513,6 +516,30 @@ void COutputter::OutputElementStress()
 				*this << endl;
 				break;
 
+			case ElementTypes::H8:
+				{*this << "  ELEMENT           STRESSxx           STRESSyy           STRESSzz           STRESSyz           STRESSzx           STRESSxy" << endl
+					<< "  NUMBER" << endl;
+
+				double stress4[6];
+
+				for (unsigned int Ele = 0; Ele < NUME; Ele++)
+				{
+					CElement& Element = EleGrp[Ele];
+					Element.ElementStress(stress4, Displacement);
+
+					C8HMaterial& material = *dynamic_cast<C8HMaterial*>(Element.GetElementMaterial());
+					*this << setw(5) << Ele + 1 << setw(22)
+						<< stress4[0] << setw(18)
+						<< stress4[1] << setw(18)
+						<< stress4[2] << setw(18)
+						<< stress4[3] << setw(18)
+						<< stress4[4] << setw(18)
+						<< stress4[5] << setw(18)<<endl;
+				}
+
+				*this << endl;
+
+				break;}
 
 			case ElementTypes::Beam:
 				*this << " Element		Sxx			Syy			Szz" << endl

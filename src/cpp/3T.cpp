@@ -102,7 +102,7 @@ void C3T::ElementStiffness(double* Matrix)
 	double D1;
 
 	E1 = material_->E;
-	poi = material_->poisson;
+	poi = material_->Nu;
 	D1 = E1 / (1 - poi * poi);
 
 	DD(0, 0) = D1 * 1;
@@ -205,10 +205,10 @@ void C3T::ElementStiffness(double* Matrix)
 	{
 		C3TMaterial* material_ = dynamic_cast<C3TMaterial*>(ElementMaterial_);	// Pointer to material of the element
 		//	Calculate D1
-		double D1 = material_->E / (1 - material_->poisson*material_->poisson);
+		double D1 = material_->E / (1 - material_->Nu*material_->Nu);
 		
 	
-		double poi = material_->poisson;
+		double poi = material_->Nu;
 		
 
 			Eigen::MatrixXd  stress1(3,1);
@@ -327,117 +327,25 @@ void C3T::ElementStiffness(double* Matrix)
 
 	
 
-	void C3T::ElementStressplot1(double* newlocation, double* Displacement)
-	{
-	}
-	//	Calculate element stress for plot
-	/*void C3T::ElementStressplot1(double* newlocation, double* Displacement)
-	{
-		C3TMaterial* material_ = dynamic_cast<C3TMaterial*>(ElementMaterial_);	// Pointer to material of the element
-		Eigen::Matrix3d  stress1(3,1);
-		Eigen::MatrixXd  DD(3,3);
-		Eigen::MatrixXd  strain(3,1);     //º∆À„”¶±‰strain
-		Eigen::MatrixXd  d(1,6);
-		Eigen::MatrixXd  B(3,6);
-		Eigen::MatrixXd  dz(6,1);
-		
-		for (unsigned int i = 0; i < 6; i++)
-		{
-			if (LocationMatrix_[i])
-				d(1,i) = Displacement[LocationMatrix_[i] - 1];
-			else if (LocationMatrix_[i] == 0)
-				d(1,i) = 0;
-		}
-		double D1 = material_->E / (1 - material_->poisson*material_->poisson);
+void C3T::ElementPostInfo(double* stress, double* Displacement, double* PrePositions,
+                                double* PostPositions)
+{
+    ElementStress(stress, Displacement);
+    for (unsigned index = 0; index < 9; ++index)
+    {
+        if (LocationMatrix_[index])
+        {
+            PrePositions[index] = nodes_[index / 3]->XYZ[index % 3];
+            PostPositions[index] = PrePositions[index] + Displacement[LocationMatrix_[index] - 1];
+        }
+        else
+        {
+            PrePositions[index] = PostPositions[index] = nodes_[index / 3]->XYZ[index % 3];
+        }
+    }
+}
 
 
-
-		for (unsigned int j = 0; j < NEN_; j++)
-		{
-			for (unsigned int i = 0; i < 2; i++)
-			{
-				if (LocationMatrix_[i + 2 * j])
-					newlocation[i + 6 * j] = nodes_[j]->XYZ[i] + Displacement[LocationMatrix_[i + 2 * j] - 1];
-				else
-					newlocation[i + 6 * j] = nodes_[j]->XYZ[i];
-
-			}
-		newlocation[2 + 6 * j] = nodes_[j]->XYZ[2];
-			
-			double DX[3];
-			double DY[3];
-			double DZ[3];
-
-			DX[0] = nodes_[1]->XYZ[1] - nodes_[2]->XYZ[1];
-
-			DX[1] = nodes_[2]->XYZ[1] - nodes_[0]->XYZ[1];
-
-			DX[2] = nodes_[0]->XYZ[1] - nodes_[1]->XYZ[1];
-
-			DY[0] = nodes_[1]->XYZ[0] - nodes_[2]->XYZ[0];
-
-			DY[1] = nodes_[2]->XYZ[0] - nodes_[0]->XYZ[0];
-
-			DY[2] = nodes_[0]->XYZ[0] - nodes_[1]->XYZ[0];
-
-			DZ[0] = nodes_[1]->XYZ[0] - nodes_[2]->XYZ[0];
-
-			DZ[1] = nodes_[2]->XYZ[0] - nodes_[0]->XYZ[0];
-
-			DZ[2] = nodes_[0]->XYZ[0] - nodes_[1]->XYZ[0];
-		
-
-			B(0, 0) = DX[0];
-			B(0, 1) = 0;
-			B(0, 2) = DX[1];
-			B(0, 3) = 0;
-			B(0, 4) = DX[2];
-			B(0, 5) = 0;
-			B(1, 0) = DY[0];
-			B(1, 1) = 0;
-			B(1, 2) = DY[1];
-			B(1, 3) = 0;
-			B(1, 4) = DY[2];
-			B(1, 5) = 0;
-			B(2, 0) = DY[0];
-			B(2, 1) = DX[0];
-			B(2, 2) = DY[1];
-			B(2, 3) = DX[1];
-			B(2, 4) = DY[2];
-			B(2, 5) = DX[2];
-
-
-			double L12;
-			double L22;
-			double L32;
-			double L1;
-			double L2;
-			double L3;
-			double p;
-			L12 = DX[0] * DX[0] + DY[0] * DY[0] + DZ[0] * DZ[0];
-			L22 = DX[1] * DX[1] + DY[1] * DY[1] + DZ[1] * DZ[1];
-			L32 = DX[2] * DX[2] + DY[2] * DY[2] + DZ[2] * DZ[2];
-			L1 = sqrt(L12);
-			L2 = sqrt(L22);
-			L3 = sqrt(L32);
-			p = (L1 + L2 + L3) / 2;
-			double area = sqrt(p * ( p - L1) * (p - L2) * (p - L3));
-
-			B = B / (2*area);
-			strain = B * d;
-
-			
-			nodes_[j]->stress_node[0] += D1 * (strain(0) + material_->poisson*strain(0,0));
-			nodes_[j]->stress_node[1] += D1 * (strain(0) * material_->poisson + strain(1,0));
-			nodes_[j]->stress_node[2] += D1 * (1 - material_->poisson) / 2 * strain(2,0);
-			
-			for (unsigned int i = 3; i < 6; i++)
-			{
-				newlocation[ i + 6 * j ] = nodes_[j]->stress_node[i - 3];
-			}
-		}
-	}
-*/
 
 	//Caculate Gravity of Elements
 

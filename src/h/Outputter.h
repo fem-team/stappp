@@ -59,6 +59,10 @@ public:
 
 	void PrintQ4ElementData(unsigned int EleGrp);
 
+	void Print3TElementData(unsigned int EleGrp);
+
+	void Print8HElementData(unsigned int EleGrp);
+
 	void PrintBeamElementData(unsigned int EleGrp);
 
 //!	Output load data 
