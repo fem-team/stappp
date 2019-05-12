@@ -17,7 +17,8 @@
 #include "Beam.h"
 #include "Q4.h"
 #include "Bar.h"
-
+#include "3T.h" 
+#include "8H.h" 
 #include "Material.h"
 #include "Node.h"
 

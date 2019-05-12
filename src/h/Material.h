@@ -120,7 +120,18 @@ public:
 
 };
 	
+class C8HMaterial : public CMaterial
+{
+public:
 
+	double nv;	//!< Sectional area of a 8H element
+
+//!	Read material data from stream Input
+	virtual bool Read(ifstream& Input, unsigned int mset);
+
+//!	Write material data to Stream OutputFile
+	virtual void Write(COutputter& output, unsigned int mset);
+};
 
 
 

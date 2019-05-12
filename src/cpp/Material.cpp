@@ -64,6 +64,28 @@ void C3TMaterial::Write(COutputter& output, unsigned int mset)
 {
 	output << setw(5) << mset + 1 << setw(16) << E << setw(16) << poisson << setw(16) << density << setw(16) << thick << endl;
 }
+bool C8HMaterial::Read(ifstream& Input, unsigned int mset)
+{
+	Input >> nset;	// Number of property set
+
+	if (nset != mset + 1)
+	{
+		cerr << "*** Error *** Material sets must be inputted in order !" << endl 
+			 << "    Expected set : " << mset + 1 << endl
+			 << "    Provided set : " << nset << endl;
+
+		return false;
+	}
+
+	Input >> E >> nv >>rho;	// Young's modulus and section area
+
+	return true;
+}
+
+void C8HMaterial::Write(COutputter& output, unsigned int mset)
+{
+	output << setw(5) << mset+1 << setw(16) << E << setw(16) << posi_ratio << setw(16) << rho<< endl;
+}
 
 bool CQ4Material::Read(ifstream& Input, unsigned int mset)
 {
