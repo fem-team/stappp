@@ -135,7 +135,7 @@ void CElementGroup::AllocateMaterials(std::size_t size)
 			break;
 		case ElementTypes::IEM:
 			MaterialList_ = new CIEMMaterial[size];
-			break
+			break;
         default:
             std::cerr << "Type " << ElementType_ << " not available. See CElementGroup::AllocateMaterial." << std::endl;
             exit(5);
