@@ -35,12 +35,43 @@ bool CBarMaterial::Read(ifstream& Input, unsigned int mset)
 	return true;
 }
 
-//	Write material data to Stream
-void CBarMaterial::Write(COutputter& output, unsigned int mset)
+bool CPlateMaterial::Read(ifstream& Input, unsigned int mset)
 {
-	output << setw(5) << mset+1 << setw(16) << E << setw(16) << Area << endl;
+	Input >> nset;	// Number of property set
+
+	if (nset != mset + 1)
+	{
+		cerr << "*** Error *** Material sets must be inputted in order !" << endl
+			<< "    Expected set : " << mset + 1 << endl
+			<< "    Provided set : " << nset << endl;
+
+		return false;
+	}
+
+	Input >> E >> nu >> h;	// Young's modulus and section area
+
+	return true;
 }
 
+bool CIEMMaterial::Read(ifstream& Input, unsigned int mset)
+{
+	Input >> nset;	// Number of property set
+
+	Input >> nset;	// Number of property set
+
+	if (nset != mset + 1)
+	{
+		cerr << "*** Error *** Material sets must be inputted in order !" << endl
+			<< "    Expected set : " << mset + 1 << endl
+			<< "    Provided set : " << nset << endl;
+
+		return false;
+	}
+
+	Input >> E >> nu;	// Young's modulus and section area
+
+	return true;
+}
 
 bool CQ4Material::Read(ifstream& Input, unsigned int mset)
 {
@@ -48,9 +79,9 @@ bool CQ4Material::Read(ifstream& Input, unsigned int mset)
 
 	if (nset != mset + 1)
 	{
-		cerr << "*** Error *** Material sets must be inputted in order !" << endl 
-			 << "    Expected set : " << mset + 1 << endl
-			 << "    Provided set : " << nset << endl;
+		cerr << "*** Error *** Material sets must be inputted in order !" << endl
+			<< "    Expected set : " << mset + 1 << endl
+			<< "    Provided set : " << nset << endl;
 
 		return false;
 	}
@@ -60,20 +91,15 @@ bool CQ4Material::Read(ifstream& Input, unsigned int mset)
 	return true;
 }
 
-void CQ4Material::Write(COutputter& output, unsigned int mset)
-{
-	output << setw(5) << mset+1 << setw(16) << E << setw(16) << Nu << endl;
-}
-
 bool CBeamMaterial::Read(ifstream& Input, unsigned int mset)
 {
 	Input >> nset;	// Number of property set
 
 	if (nset != mset + 1)
 	{
-		cerr << "*** Error *** Material sets must be inputted in order !" << endl 
-			 << "    Expected set : " << mset + 1 << endl
-			 << "    Provided set : " << nset << endl;
+		cerr << "*** Error *** Material sets must be inputted in order !" << endl
+			<< "    Expected set : " << mset + 1 << endl
+			<< "    Provided set : " << nset << endl;
 
 		return false;
 	}
@@ -83,7 +109,32 @@ bool CBeamMaterial::Read(ifstream& Input, unsigned int mset)
 	return true;
 }
 
+//	Write material data to Stream
+void CBarMaterial::Write(COutputter& output, unsigned int mset)
+{
+	output << setw(5) << mset+1 << setw(16) << E << setw(16) << Area << endl;
+}
+
+
+
+
+void CQ4Material::Write(COutputter& output, unsigned int mset)
+{
+	output << setw(5) << mset+1 << setw(16) << E << setw(16) << Nu << endl;
+}
+
+
 void CBeamMaterial::Write(COutputter& output, unsigned int mset)
 {
 	output << setw(5) << mset+1 << setw(16) << E << setw(16) << Nu << setw(16) <<a << setw(16) <<b<< endl;
+}
+
+void CPlateMaterial::Write(COutputter& output, unsigned int mset)
+{
+	output << setw(5) << mset + 1 << setw(16) << E << setw(16) << nu << setw(16) << h << endl;
+}
+
+void CIEMMaterial::Write(COutputter& output, unsigned int mset)
+{
+	output << setw(5) << mset + 1 << setw(16) << E << setw(16) << nu << endl;
 }

@@ -291,6 +291,87 @@ void COutputter::PrintBeamElementData(unsigned int EleGrp)
 	*this << endl;
 }
 
+// Output plate element data
+void COutputter::PrintPlateElementData(unsigned int EleGrp)
+{
+	CDomain* FEMData = CDomain::Instance();
+
+	CElementGroup& ElementGroup = FEMData->GetEleGrpList()[EleGrp];
+	unsigned int NUMMAT = ElementGroup.GetNUMMAT();
+
+	*this << " M A T E R I A L   D E F I N I T I O N" << endl
+		<< endl;
+	*this << " NUMBER OF DIFFERENT SETS OF MATERIAL" << endl;
+	*this << " AND CROSS-SECTIONAL  CONSTANTS  . . . .( NPAR(3) ) . . =" << setw(5) << NUMMAT
+		<< endl
+		<< endl;
+
+	*this << "  SET       YOUNG'S     POISSON'S     PLATE" << endl
+		<< " NUMBER     MODULUS          RATIO      THICKNESS" << endl
+		<< "               E              nu           h" << endl;
+
+	*this << setiosflags(ios::scientific) << setprecision(5);
+
+	//	Loop over for all property sets
+	for (unsigned int mset = 0; mset < NUMMAT; mset++)
+		ElementGroup.GetMaterial(mset).Write(*this, mset);
+
+	*this << endl
+		<< endl
+		<< " E L E M E N T   I N F O R M A T I O N" << endl;
+	*this << " ELEMENT     NODE     NODE     NODE     NODE       MATERIAL" << endl
+		<< " NUMBER-N      I        J        K        L         SET NUMBER" << endl;
+
+	unsigned int NUME = ElementGroup.GetNUME();
+
+	//	Loop over for all elements in group EleGrp
+	for (unsigned int Ele = 0; Ele < NUME; Ele++)
+		ElementGroup[Ele].Write(*this, Ele);
+
+	*this << endl;
+}
+
+//output IEM element data
+void COutputter::PrintIEMElementData(unsigned int EleGrp)
+{
+	CDomain* FEMData = CDomain::Instance();
+
+	CElementGroup& ElementGroup = FEMData->GetEleGrpList()[EleGrp];
+	unsigned int NUMMAT = ElementGroup.GetNUMMAT();
+
+	*this << " M A T E R I A L   D E F I N I T I O N" << endl
+		<< endl;
+	*this << " NUMBER OF DIFFERENT SETS OF MATERIAL" << endl;
+	*this << " AND CROSS-SECTIONAL  CONSTANTS  . . . .( NPAR(3) ) . . =" << setw(5) << NUMMAT
+		<< endl
+		<< endl;
+
+	*this << "  SET       YOUNG'S        POISSON " << endl
+		<< " NUMBER     MODULUS         RATIO" << endl
+		<< "               E              nu " << endl;
+
+	*this << setiosflags(ios::scientific) << setprecision(5);
+
+	//	Loop over for all property sets
+	for (unsigned int mset = 0; mset < NUMMAT; mset++)
+		ElementGroup.GetMaterial(mset).Write(*this, mset);
+
+	*this << endl
+		<< endl
+		<< " E L E M E N T   I N F O R M A T I O N" << endl;
+	*this << " ELEMENT     NODE     NODE     NODE     NODE       MATERIAL" << endl
+		<< " NUMBER-N      I       J      K       L       SET NUMBER" << endl;
+
+	unsigned int NUME = ElementGroup.GetNUME();
+
+	//	Loop over for all elements in group EleGrp
+	for (unsigned int Ele = 0; Ele < NUME; Ele++)
+		ElementGroup[Ele].Write(*this, Ele);
+
+	*this << endl;
+}
+
+
 //	Print load data
 void COutputter::OutputLoadInfo()
 {
@@ -421,6 +502,32 @@ void COutputter::OutputElementStress()
 
 				break;
 
+			case ElementTypes::Plate: // Plate element
+				*this << "    ELEMENT   GAUSS P           NODAL POINTS DISPLACEMENTS"
+					<< "                       NODAL POINTS STRESSES"
+					<< endl;
+				*this << "     NUMBER    INDEX        W             ThetaX             ThetaY"
+					<< "               SX'X'_MAX     SY'Y'_MAX    SX'Y'_MAX"
+					<< endl;
+
+				double stresses[12];
+
+				for (unsigned int Ele = 0; Ele < NUME; Ele++)
+				{
+					CElement& Element = EleGrp[Ele];
+					Element.ElementStress(stresses, Displacement);
+
+					CPlateMaterial& material = *dynamic_cast<CPlateMaterial*>(Element.GetElementMaterial());
+					for (unsigned i = 0; i < 4; ++i) { // four nodal points
+						*this << setw(8) << Ele + 1;
+						*this << setw(10) << i + 1;
+						*this << setw(17) << Displacement[i * 3] << setw(14) << Displacement[i * 3 + 1] << setw(14) << Displacement[i * 3 + 2];
+						*this << setw(17) << stresses[i * 3] << setw(14) << stresses[i * 3 + 1] << setw(14) << stresses[i * 3 + 2];
+						// *this << setw(32) << stresses[i] << std::endl;
+
+						*this << std::endl;
+					}
+				}
 
 			default: // Invalid element type
 				cerr << "*** Error *** Elment type " << ElementType

@@ -24,7 +24,7 @@ CNode::CNode(double X, double Y, double Z)
     bcode[0] = 0;	// Boundary codes
     bcode[1] = 0;
     bcode[2] = 0;
-	bcode[3] = 1;
+	bcode[3] = 1;   //将三个rotation自由度默认锁住
 	bcode[4] = 1;
 	bcode[5] = 1;
 

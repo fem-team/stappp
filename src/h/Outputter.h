@@ -61,6 +61,13 @@ public:
 
 	void PrintBeamElementData(unsigned int EleGrp);
 
+//!	Output plate element data
+	void PrintPlateElementData(unsigned int EleGrp);
+
+//!	Output IEM element data
+	void PrintIEMElementData(unsigned int EleGrp);
+
+
 //!	Output load data 
 	void OutputLoadInfo(); 
 

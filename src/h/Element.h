@@ -43,7 +43,7 @@ public:
 
 
 //!	Constructor
-	CElement() : NEN_(0), nodes_(nullptr), ElementMaterial_(nullptr) {};
+	CElement() : NEN_(0), nodes_(nullptr), ElementMaterial_(nullptr), LocationMatrix_(nullptr), ND_(0) {};
 
 //! Virtual deconstructor
     virtual ~CElement() {
@@ -72,7 +72,7 @@ public:
 
 //!	Calculate element stress 
 	virtual void ElementStress(double* stress, double* Displacement) = 0;
-
+	virtual void ElementStress(double* stress, double* Displacement, double* position) {};
 //!	Return nodes of the element
 	inline CNode** GetNodes() { return nodes_; }
 

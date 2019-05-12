@@ -27,7 +27,7 @@ public:
 	unsigned int NodeNumber;
 
 //!	x, y and z coordinates of the node
-	double XYZ[3];
+	double XYZ[NDF];
 
 //!	Boundary code of each degree of freedom of the node
 /*!		0: The corresponding degree of freedom is active (defined in the global system) */
