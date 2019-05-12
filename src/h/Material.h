@@ -24,6 +24,7 @@ public:
 	
 	double E;  //!< Young's modulus
 
+
 public:
 
 //! Virtual deconstructor
@@ -44,6 +45,11 @@ public:
 
 	double Area;	//!< Sectional area of a bar element
 
+	//新加 2019.3.24
+	double rho_3D;  //体密度
+	//    //线密度
+	//
+
 public:
 	
 //!	Read material data from stream Input
@@ -52,3 +58,50 @@ public:
 //!	Write material data to Stream
 	virtual void Write(COutputter& output, unsigned int mset);
 };
+
+class CQ4Material : public CMaterial
+{
+public:
+
+	double Nu;	//!< Sectional area of a bar element
+
+
+
+public:
+	
+//!	Read material data from stream Input
+	virtual bool Read(ifstream& Input, unsigned int mset);
+
+//!	Write material data to Stream
+	virtual void Write(COutputter& output, unsigned int mset);
+};
+
+class CBeamMaterial : public CMaterial
+{
+public:
+
+	double a;
+	double b;
+	double Nu;
+	double x1;
+	double y1;
+	double x2;
+	double y2;
+	double n1;// x component of y' axis
+	double n2;// y component of y' axis
+	double n3;// z component of y' axis
+
+public:
+
+	//!	Read material data from stream Input
+	virtual bool Read(ifstream& Input, unsigned int mset);
+
+//!	Write material data to Stream
+	virtual void Write(COutputter& output, unsigned int mset);
+
+};
+	
+
+
+
+

@@ -89,13 +89,11 @@ bool CDomain::ReadData(string FileName, string OutFile)
 
 //	Read nodal point data
 	if (ReadNodalPoints())
-        Output->OutputNodeInfo();
+        Output->OutputNodeInfo(); // 输出节点数据
     else
         return false;
 
-//	Update equation number
-	CalculateEquationNumber();
-	Output->OutputEquationNumber();
+
 
 //	Read load data
 	if (ReadLoadCases())
@@ -109,6 +107,10 @@ bool CDomain::ReadData(string FileName, string OutFile)
     else
         return false;
 
+	//	Update equation number
+	CalculateEquationNumber();
+	Output->OutputEquationNumber();
+
 	return true;
 }
 
@@ -117,7 +119,7 @@ bool CDomain::ReadNodalPoints()
 {
 
 //	Read nodal point data lines
-	NodeList = new CNode[NUMNP];
+	NodeList = new CNode[NUMNP];    // 对象数组初始化
 
 //	Loop over for all nodal points
 	for (unsigned int np = 0; np < NUMNP; np++)
@@ -218,6 +220,7 @@ void CDomain::AssembleStiffnessMatrix()
         {
             CElement& Element = ElementGrp[Ele];
             Element.ElementStiffness(Matrix);
+
             StiffnessMatrix->Assembly(Matrix, Element.GetLocationMatrix(), Element.GetND());
         }
 
@@ -247,10 +250,36 @@ bool CDomain::AssembleForce(unsigned int LoadCase)
         
         if(dof) // The DOF is activated
             Force[dof - 1] += LoadData->load[lnum];
+   
 	}
 
-	return true;
+	 return true;
 }
+// 新加
+
+void CDomain::AssembleGravity()
+{
+	
+	 for (unsigned int EleGrp = 0; EleGrp < NUMEG; EleGrp++)
+	 {
+		CElementGroup& ElementGrp = EleGrpList[EleGrp];
+		unsigned int NUME = ElementGrp.GetNUME();
+		for (unsigned int Ele = 0; Ele < NUME ; Ele++)
+		{
+			CElement& Element = ElementGrp[Ele];
+
+			for (unsigned int n = 0; n<Element.GetNEN();n++)
+			{
+				unsigned int dof = Element.GetNodes()[n] -> bcode[2];
+				if(dof)
+				
+					Force[dof-1] -= Element.Gravity()/2;
+			}
+		}
+	 }
+}
+//
+
 
 //	Allocate storage for matrices Force, ColumnHeights, DiagonalAddress and StiffnessMatrix
 //	and calculate the column heights and address of diagonal elements
@@ -275,3 +304,4 @@ void CDomain::AllocateMatrices()
 	COutputter* Output = COutputter::Instance();
 	Output->OutputTotalSystemData();
 }
+	 

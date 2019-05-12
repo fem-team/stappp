@@ -13,9 +13,14 @@
 #include <fstream>
 
 #include "Element.h"
+
+#include "Beam.h"
+#include "Q4.h"
 #include "Bar.h"
+
 #include "Material.h"
 #include "Node.h"
+
 
 using namespace std;
 

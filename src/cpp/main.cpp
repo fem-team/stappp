@@ -8,10 +8,15 @@
 /*     http://www.comdyn.cn/                                                 */
 /*****************************************************************************/
 
+
 #include "Domain.h"
 #include "Bar.h"
+#include "Q4.h"
+#include "Beam.h"
 #include "Outputter.h"
 #include "Clock.h"
+#include "PostOutputter.h"
+
 
 using namespace std;
 
@@ -40,14 +45,15 @@ int main(int argc, char *argv[])
 
     string InFile = filename + ".dat";
 	string OutFile = filename + ".out";
+	string PostFile = filename + "_post.dat";
 
-	CDomain* FEMData = CDomain::Instance();
+	CDomain* FEMData = CDomain::Instance(); //创建数据指针
 
-    Clock timer;
+    Clock timer; //开始计时
     timer.Start();
 
 //  Read data and define the problem domain
-	if (!FEMData->ReadData(InFile, OutFile))
+	if (!FEMData->ReadData(InFile, OutFile)) //如果阅读数据失败（ReadData是一个bool函数）
 	{
 		cerr << "*** Error *** Data input failed!" << endl;
 		exit(1);
@@ -59,10 +65,15 @@ int main(int argc, char *argv[])
 //  DiagonalAddress and StiffnessMatrix, and calculate the column heights
 //  and address of diagonal elements
 	FEMData->AllocateMatrices();
-    
+
+
+
 //  Assemble the banded gloabl stiffness matrix
 	FEMData->AssembleStiffnessMatrix();
     
+		//新加
+	FEMData->AssembleGravity();
+
     double time_assemble = timer.ElapsedTime();
 
 //  Solve the linear equilibrium equations for displacements
@@ -73,15 +84,22 @@ int main(int argc, char *argv[])
 
     COutputter* Output = COutputter::Instance();
 
+	CPostOutputter* PostOutput = CPostOutputter::Instance(PostFile);
+
 #ifdef _DEBUG_
     Output->PrintStiffnessMatrix();
 #endif
-        
+
+//	新加	Add Gravity to force vector
+		//FEMData->AssembleGravity();
+
 //  Loop over for all load cases
     for (unsigned int lcase = 0; lcase < FEMData->GetNLCASE(); lcase++)
     {
 //      Assemble righ-hand-side vector (force vector)
         FEMData->AssembleForce(lcase + 1);
+
+
             
 //      Reduce right-hand-side force vector and back substitute
         Solver->BackSubstitution(FEMData->GetForce());
@@ -90,7 +108,7 @@ int main(int argc, char *argv[])
         Output->PrintDisplacement(lcase);
 #endif
             
-        Output->OutputNodalDisplacement(lcase);
+	        Output->OutputNodalDisplacement(lcase); //输出节点位移
     }
 
     double time_solution = timer.ElapsedTime();
@@ -98,6 +116,8 @@ int main(int argc, char *argv[])
 //  Calculate and output stresses of all elements
 	Output->OutputElementStress();
     
+	PostOutput->OutputElementStress();
+
     double time_stress = timer.ElapsedTime();
     
     timer.Stop();

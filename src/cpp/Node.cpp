@@ -10,6 +10,8 @@
 
 #include <iostream>
 #include <iomanip>
+#include <string>
+#include <sstream>
 
 #include "Node.h"
 
@@ -22,6 +24,11 @@ CNode::CNode(double X, double Y, double Z)
     bcode[0] = 0;	// Boundary codes
     bcode[1] = 0;
     bcode[2] = 0;
+	bcode[3] = 1;
+	bcode[4] = 1;
+	bcode[5] = 1;
+
+
 };
 
 //	Read element data from stream Input
@@ -41,8 +48,27 @@ bool CNode::Read(ifstream& Input, unsigned int np)
 
 	NodeNumber = N;
 
-	Input >> bcode[0] >> bcode[1] >> bcode[2]
+	string NodeInfo;
+	getline(Input,NodeInfo);
+	stringstream NodeInfoforInput(NodeInfo);
+
+	if (getArgsNumber(NodeInfo) == 9)
+	{
+		NodeInfoforInput >> bcode[0] >> bcode[1] >> bcode[2] >> bcode[3] >> bcode[4] >> bcode[5]
 		  >> XYZ[0] >> XYZ[1] >> XYZ[2];
+	}
+	else if (getArgsNumber(NodeInfo) == 6)
+	{
+		NodeInfoforInput >> bcode[0] >> bcode[1] >> bcode[2] 
+		  >> XYZ[0] >> XYZ[1] >> XYZ[2];
+	}
+	else
+	{
+		cerr << "Please Check the input of NodeInfo! " <<endl
+			<< "in this line you have" << getArgsNumber(NodeInfo) << "Args" <<endl;
+	}
+
+
 
 	return true;
 }
@@ -85,4 +111,26 @@ void CNode::WriteNodalDisplacement(COutputter& output, unsigned int np, double* 
 	}
 
 	output << endl;
+}
+
+int getArgsNumber(std::string buff)
+{
+    int count = 0;
+    bool inNumFlag = false;
+    for (unsigned i=0; i<buff.length(); ++i)
+    {
+        if (buff[i] != ' ' && buff[i] != '\t')
+        {
+            if (!inNumFlag)
+            {
+                inNumFlag = true;
+                count++;
+            }
+        }
+        else
+        {
+            inNumFlag = false;
+        }
+    }
+    return count;
 }

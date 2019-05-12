@@ -40,6 +40,8 @@ protected:
 
 public:
 
+
+
 //!	Constructor
 	CElement() : NEN_(0), nodes_(nullptr), ElementMaterial_(nullptr) {};
 
@@ -85,4 +87,13 @@ public:
 
 //!	Return the size of the element stiffness matrix (stored as an array column by column)
 	virtual unsigned int SizeOfStiffnessMatrix() = 0;     
+
+//  新加
+	virtual double Gravity() = 0;
+//  新加
+	inline unsigned int GetNEN() { return NEN_; }
+
+	virtual void ElementPostInfo(double* stress, double* Displacement, double* PrePositions, double* PostPositions){};
+
+
 };

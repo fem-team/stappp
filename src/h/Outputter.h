@@ -57,6 +57,10 @@ public:
 //!	Output bar element data
 	void PrintBarElementData(unsigned int EleGrp);
 
+	void PrintQ4ElementData(unsigned int EleGrp);
+
+	void PrintBeamElementData(unsigned int EleGrp);
+
 //!	Output load data 
 	void OutputLoadInfo(); 
 

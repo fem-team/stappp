@@ -213,7 +213,7 @@ void CSkylineMatrix<T_>::CalculateColumnHeight(unsigned int* LocationMatrix, siz
         unsigned int Height = column - nfirstrow;
         if (ColumnHeights_[column-1] < Height) ColumnHeights_[column-1] = Height;
     }
-}
+	}
 
 // Maximum half bandwidth ( = max(ColumnHeights) + 1 )
 template <class T_>
@@ -233,8 +233,11 @@ template <class T_>
 void CSkylineMatrix<T_>::Assembly(double* Matrix, unsigned int* LocationMatrix, size_t ND)
 {
 //  Assemble global stiffness matrix
+
+
     for (unsigned int j = 0; j < ND; j++)
     {
+		
         unsigned int Lj = LocationMatrix[j];    // Global equation number corresponding to jth DOF of the element
         if (!Lj)
             continue;
@@ -253,7 +256,7 @@ void CSkylineMatrix<T_>::Assembly(double* Matrix, unsigned int* LocationMatrix, 
         }
     }
     
-    return;
+    //return;
 }
 
 //    Calculate address of diagonal elements in banded matrix

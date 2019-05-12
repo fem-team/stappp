@@ -115,6 +115,9 @@ public:
 //!	Assemble the global nodal force vector for load case LoadCase
 	bool AssembleForce(unsigned int LoadCase); 
 
+//! Add Gravity
+	void AssembleGravity();
+
 //!	Return solution mode
 	inline unsigned int GetMODEX() { return MODEX; }
 

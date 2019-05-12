@@ -1,34 +1,20 @@
-/*****************************************************************************/
-/*  STAP++ : A C++ FEM code sharing the same input data file with STAP90     */
-/*     Computational Dynamics Laboratory                                     */
-/*     School of Aerospace Engineering, Tsinghua University                  */
-/*                                                                           */
-/*     Release 1.11, November 22, 2017                                       */
-/*                                                                           */
-/*     http://www.comdyn.cn/                                                 */
-/*****************************************************************************/
-
 #pragma once
 
 #include "Element.h"
 
 using namespace std;
 
-//! Bar element class
-class CBar : public CElement
+class CBeam : public CElement
 {
 public:
 
-	//新加
-	double L;
-	double GForce;
 
 
 //!	Constructor
-	CBar();
+	CBeam();
 
 //!	Desconstructor
-	~CBar();
+	~CBeam();
 
 //!	Read element data from stream Input
 	virtual bool Read(ifstream& Input, unsigned int Ele, CMaterial* MaterialSets, CNode* NodeList);
@@ -49,9 +35,9 @@ public:
 //!	Return the size of the element stiffness matrix (stored as an array column by column)
 	virtual unsigned int SizeOfStiffnessMatrix();
 
-//  新加
-	virtual double Gravity();
-
 	virtual void ElementPostInfo(double* stress, double* Displacement, double* PrePositions, double* PostPositions);
 
+
+//  新加
+	virtual double Gravity();
 };
