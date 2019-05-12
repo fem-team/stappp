@@ -192,7 +192,7 @@ void CPostOutputter::OutputElementStress()
                                      - beamstress[6 * i + 1]*beamstress[6 * i + 5]*beamstress[6 * i + 5]
                                      - beamstress[6 * i + 2]*beamstress[6 * i + 3]*beamstress[6 * i + 3]
                                      - beamstress[6 * i + 4]*beamstress[6 * i + 4]*beamstress[6 * i];
-	                    cmptStressBeam[3] = sqrt(cmptStressBeam[0]*cmptStressBeam[0] - cmptStressBeam[1]);
+                    cmptStressBeam[3] = sqrt(cmptStressBeam[0]*cmptStressBeam[0] - cmptStressBeam[1]);
 					*this << setw(Datalength) << cmptStressBeam[0]
 					<< setw(Datalength) << cmptStressBeam[1]
 					<< setw(Datalength) << cmptStressBeam[2]

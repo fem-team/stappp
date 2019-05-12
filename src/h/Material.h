@@ -59,11 +59,30 @@ public:
 	virtual void Write(COutputter& output, unsigned int mset);
 };
 
+//!	Material class for 3T element
+class C3TMaterial : public CMaterial
+{
+public:
+
+	double poisson;	//!Poisson ratio of a 4Q element
+
+	double thick; // the thickness of element
+
+public:
+
+	//!	Read material data from stream Input
+	virtual bool Read(ifstream& Input, unsigned int mset);
+
+	//!	Write material data to Stream
+	virtual void Write(COutputter& output, unsigned int mset);
+};
+
+
 class CQ4Material : public CMaterial
 {
 public:
 
-	double nu;	//!< Sectional area of a bar element
+	double Nu;	//!< Sectional area of a bar element
 
 
 
@@ -82,7 +101,7 @@ public:
 
 	double a;
 	double b;
-	double nu;
+	double Nu;
 	double x1;
 	double y1;
 	double x2;

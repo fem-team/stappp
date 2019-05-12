@@ -163,6 +163,9 @@ void COutputter::OutputElementInfo()
 			case ElementTypes::Bar: // Bar element
 				PrintBarElementData(EleGrp);
 				break;
+			case ElementTypes::T3: // 3T element
+				Print3TElementData(EleGrp);
+				break;
 			case ElementTypes::Q4:
 				PrintQ4ElementData(EleGrp);
 				break;
@@ -209,6 +212,45 @@ void COutputter::PrintBarElementData(unsigned int EleGrp)
 	for (unsigned int Ele = 0; Ele < NUME; Ele++)
 		ElementGroup[Ele].Write(*this, Ele);
 
+	*this << endl;
+}
+
+//Output 3T element data
+void COutputter::Print3TElementData(unsigned int EleGrp)
+{
+	CDomain* FEMData = CDomain::Instance();
+
+	CElementGroup& ElementGroup = FEMData->GetEleGrpList()[EleGrp];
+	unsigned int NUMMAT = ElementGroup.GetNUMMAT();
+
+	*this << " M A T E R I A L   D E F I N I T I O N" << endl
+		<< endl;
+	*this << " NUMBER OF DIFFERENT SETS OF MATERIAL" << endl;
+	*this << " AND ELASTIC CONSTANTS  . . . .( NPAR(3) ) . . =" << setw(5) << NUMMAT
+		<< endl
+		<< endl;
+
+	*this << "  SET       YOUNG'S    ELASTIC CONSTANTS" << endl
+		<< " NUMBER     MODULUS        POISSON" << endl
+		<< "               E              v" << endl;
+
+	*this << setiosflags(ios::scientific) << setprecision(5);
+
+	//	Loop over for all property sets
+	for (unsigned int mset = 0; mset < NUMMAT; mset++)
+		ElementGroup.GetMaterial(mset).Write(*this, mset);
+
+	*this << endl
+		<< endl
+		<< " E L E M E N T   I N F O R M A T I O N" << endl;
+	*this << " ELEMENT     NODE     NODE     NODE         MATERIAL" << endl
+		<< " NUMBER-N      I        J        K           SET NUMBER" << endl;
+
+	unsigned int NUME = ElementGroup.GetNUME();
+
+	//	Loop over for all elements in group EleGrp
+	for (unsigned int Ele = 0; Ele < NUME; Ele++)
+		ElementGroup[Ele].Write(*this, Ele);
 	*this << endl;
 }
 
@@ -379,6 +421,36 @@ void COutputter::OutputElementStress()
 				*this << endl;
 				break;
 
+			case ElementTypes::T3: // 3T element
+				*this << "  ELEMENT  GAUSS    X-COORD        Y-COORD        Z-COORD         SXX            SYY            TXY" << endl
+					<< "  NUMBER   POINT" << endl;
+
+
+				for (unsigned int Ele = 0; Ele < NUME; Ele++)
+				{
+					CElement& Element = EleGrp[Ele];
+					C3TMaterial* material =
+						dynamic_cast<C3TMaterial *>(Element.GetElementMaterial());
+					double *stress_3T = new double[18];
+					for (unsigned int m = 0; m < 18; m++)
+						stress_3T[m] = 0;
+
+					Element.ElementStress(stress_3T, Displacement);
+
+					*this << setw(5) << Ele + 1 << setw(9) << "1"
+						<< setw(15) << stress_3T[0] << setw(15) << stress_3T[1] << setw(15) << stress_3T[2]
+						<< setw(15) << stress_3T[3] << setw(15) << stress_3T[4] << setw(15) << stress_3T[5] << endl;
+					*this << setw(5) << Ele + 1 << setw(9) << "2"
+						<< setw(15) << stress_3T[6] << setw(15) << stress_3T[7] << setw(15) << stress_3T[8]
+						<< setw(15) << stress_3T[9] << setw(15) << stress_3T[10] << setw(15) << stress_3T[11] << endl;
+					*this << setw(5) << Ele + 1 << setw(9) << "3"
+						<< setw(15) << stress_3T[12] << setw(15) << stress_3T[13] << setw(15) << stress_3T[14]
+						<< setw(15) << stress_3T[15] << setw(15) << stress_3T[16] << setw(15) << stress_3T[17] << endl;
+
+					delete[] stress_3T;
+				}
+				*this << endl;
+				break;
 
 			case ElementTypes::Q4:
 				*this << "  ELEMENT         X_coord         Y_coord         STRESS_XX         STRESS_YY         STRESS_XY" << endl
