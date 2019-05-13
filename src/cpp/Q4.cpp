@@ -287,9 +287,43 @@ void CQ4::ElementCoordinates (double * coord)
 	coord[7]=( nodes_[0]->XYZ[1]*(1-eta)*(1-psi) + nodes_[1]->XYZ[1]*(1-eta)*(1+psi) + nodes_[2]->XYZ[1]*(1+eta)*(1+psi) + nodes_[3]->XYZ[1]*(1+eta)*(1-psi) )/4;
 }
 
-void CQ4::ElementPostInfo(double stress[12], double* Displacement, double Positions[12],
-                                   double GaussDisplacements[12], double weights[4])
-{};
+void CQ4::ElementPostInfo(double* stress, double* Displacement, double* PrePositions,
+                                     double* PostPositions) 
+{
+	double de[8];
+	for (int i = 0; i < 8; i++)
+	{
+		if (LocationMatrix_[i])
+		{
+			de[i] = Displacement[LocationMatrix_[i]-1];
+		}
+		else
+		{
+			de[i] = 0;
+		}
+		PrePositions[i] = nodes_[i / 3]->XYZ[i % 3];
+		PostPositions[i] = PrePositions[i] + de[i];
+	}
+
+	CQ4Material* material_ =
+    static_cast<CQ4Material*>(ElementMaterial_); // Pointer to material of the element
+    const double& E = material_->E;
+    const double& v = material_->Nu;
+	double tempStress[12];
+	clear(tempStress,12);
+	ElementStress(tempStress,Displacement);
+
+	for (int i = 0; i < 4; i++)
+	{
+        stress[i * 6 + 0] = tempStress[i * 3 + 0];
+        stress[i * 6 + 1] = tempStress[i * 3 + 1];
+        stress[i * 6 + 2] = 0.0f;
+        stress[i * 6 + 3] = tempStress[i * 3 + 2];
+        stress[i * 6 + 4] = 0.0f;
+        stress[i * 6 + 5] = 0.0f;
+	}
+
+};
 
 	double CQ4::Gravity()
 	{return 0;}
