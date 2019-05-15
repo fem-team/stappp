@@ -132,3 +132,74 @@ void CBeamMaterial::Write(COutputter& output, unsigned int mset)
 {
 	output << setw(5) << mset+1 << setw(16) << E << setw(16) << Nu << setw(16) <<a << setw(16) <<b<< endl;
 }
+
+bool CPlateMaterial::Read(ifstream& Input, unsigned int mset)
+{
+	Input >> nset;	// Number of property set
+
+	if (nset != mset + 1)
+	{
+		cerr << "*** Error *** Material sets must be inputted in order !" << endl
+			<< "    Expected set : " << mset + 1 << endl
+			<< "    Provided set : " << nset << endl;
+
+		return false;
+	}
+
+	Input >> E >> nu >> h;	// Young's modulus and section area
+
+	return true;
+}
+
+bool CIEMMaterial::Read(ifstream& Input, unsigned int mset)
+{
+	Input >> nset;	// Number of property set
+
+	Input >> nset;	// Number of property set
+
+	if (nset != mset + 1)
+	{
+		cerr << "*** Error *** Material sets must be inputted in order !" << endl
+			<< "    Expected set : " << mset + 1 << endl
+			<< "    Provided set : " << nset << endl;
+
+		return false;
+	}
+
+	Input >> E >> nu;	// Young's modulus and section area
+
+	return true;
+}
+
+bool CQ5Material::Read(ifstream& Input, unsigned int mset)
+{
+	Input >> nset;	// Number of property set
+
+	if (nset != mset + 1)
+	{
+		cerr << "*** Error *** Material sets must be inputted in order !" << endl
+			<< "    Expected set : " << mset + 1 << endl
+			<< "    Provided set : " << nset << endl;
+
+		return false;
+	}
+
+	Input >> E >> nu;	// Young's modulus and section area
+
+	return true;
+}
+
+void CQ5Material::Write(COutputter& output, unsigned int mset)
+{
+	output << setw(5) << mset + 1 << setw(16) << E << setw(16) << nu << endl;
+}
+
+void CPlateMaterial::Write(COutputter& output, unsigned int mset)
+{
+	output << setw(5) << mset + 1 << setw(16) << E << setw(16) << nu << setw(16) << h << endl;
+}
+
+void CIEMMaterial::Write(COutputter& output, unsigned int mset)
+{
+	output << setw(5) << mset + 1 << setw(16) << E << setw(16) << nu << endl;
+}

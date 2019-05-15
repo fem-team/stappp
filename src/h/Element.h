@@ -71,7 +71,8 @@ public:
 	virtual void ElementStiffness(double* stiffness) = 0; 
 
 //!	Calculate element stress 
-	virtual void ElementStress(double* stress, double* Displacement) = 0;
+	virtual void ElementStress(double* stress, double* Displacement) ;
+	virtual void ElementStress(double* stress, double* Displacement, double* position) {};
 
 //!	Return nodes of the element
 	inline CNode** GetNodes() { return nodes_; }

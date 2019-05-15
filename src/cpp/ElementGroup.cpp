@@ -82,6 +82,18 @@ void CElementGroup::CalculateMemberSize()
 			ElementSize_ = sizeof(CBeam);
 			MaterialSize_ = sizeof(CBeamMaterial);
 			break;
+		case ElementTypes::Plate:
+			ElementSize_ = sizeof(CPlate);
+			MaterialSize_ = sizeof(CPlateMaterial);
+			break;
+		case ElementTypes::IEM:
+			ElementSize_ = sizeof(CIEM);
+			MaterialSize_ = sizeof(CIEMMaterial);
+			break;
+		case ElementTypes::Q5:
+			ElementSize_ = sizeof(CQ5);
+			MaterialSize_ = sizeof(CQ5Material);
+			break;
         default:
             std::cerr << "Type " << ElementType_ << " not available. See CElementGroup::CalculateMemberSize." << std::endl;
             exit(5);
@@ -109,6 +121,15 @@ void CElementGroup::AllocateElements(std::size_t size)
 		case ElementTypes::Beam:
 			ElementList_ = new CBeam[size];
 			break;
+		case ElementTypes::Plate:
+			ElementList_ = new CPlate[size];
+			break;
+		case ElementTypes::IEM:
+			ElementList_ = new CIEM[size];
+			break;
+		case ElementTypes::Q5:
+			ElementList_ = new CQ5[size];
+			break;
         default:
             std::cerr << "Type " << ElementType_ << " not available. See CElementGroup::AllocateElement." << std::endl;
             exit(5);
@@ -135,6 +156,15 @@ void CElementGroup::AllocateMaterials(std::size_t size)
 		case ElementTypes::H8:
 			MaterialList_ = new C8HMaterial[size];
 			break;	
+		case ElementTypes::Plate:
+			MaterialList_ = new CPlateMaterial[size];
+			break;
+		case ElementTypes::IEM:
+			MaterialList_ = new CIEMMaterial[size];
+			break;
+		case ElementTypes::Q5:
+			MaterialList_ = new CQ4Material[size];
+			break;
         default:
             std::cerr << "Type " << ElementType_ << " not available. See CElementGroup::AllocateMaterial." << std::endl;
             exit(5);

@@ -134,5 +134,56 @@ public:
 	virtual void Write(COutputter& output, unsigned int mset);
 };
 
+class CQ5Material : public CMaterial
+{
+public:
+
+	double nu;	//!< Sectional area of a bar element
+
+
+
+public:
+
+	//!	Read material data from stream Input
+	virtual bool Read(ifstream& Input, unsigned int mset);
+
+	//!	Write material data to Stream
+	virtual void Write(COutputter& output, unsigned int mset);
+};
+
+class CPlateMaterial : public CMaterial
+{
+public:
+
+	double nu;   //!< Poisson's ratio
+
+	double h;	//!< Thickness of a plate element
+
+public:
+
+	//!	Read material data from stream Input
+	virtual bool Read(ifstream& Input, unsigned int mset);
+
+	//!	Write material data to Stream
+	virtual void Write(COutputter& output, unsigned int mset);
+};
+
+//!	Material class for IEM element
+class CIEMMaterial : public CMaterial
+{
+public:
+
+	double nu;	//!< Sectional area of a bar element
+
+
+
+public:
+
+	//!	Read material data from stream Input
+	virtual bool Read(ifstream& Input, unsigned int mset);
+
+	//!	Write material data to Stream
+	virtual void Write(COutputter& output, unsigned int mset);
+};
 
 

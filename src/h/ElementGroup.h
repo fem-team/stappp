@@ -19,6 +19,9 @@
 #include "Bar.h"
 #include "3T.h" 
 #include "8H.h" 
+#include "Q5.h"
+#include "Plate.h"
+#include "IEM.h"
 #include "Material.h"
 #include "Node.h"
 
@@ -35,7 +38,9 @@ enum ElementTypes
     H8,     // 8H element
     Beam,   // Beam element
     Plate,  // Plate element
-    Shell   // Shell elment
+    Shell,   // Shell elment
+	IEM,     // Infinite 4Q element 
+	Q5       // 4Q + one mid point
 };
 
 //! Element group class
